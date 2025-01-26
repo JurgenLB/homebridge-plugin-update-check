@@ -98,14 +98,14 @@ export class UiApi {
     return response.data
   }
 
-  private getToken(): string {
+  public getToken(): string {
     if (this.token) {
       return this.token
     }
 
     const user = { // fake user
-      username: 'homebridge-plugin-update-check',
-      name: 'homebridge-plugin-update-check',
+      username: '@homebridge-plugins/homebridge-plugin-update-check',
+      name: '@homebridge-plugins/homebridge-plugin-update-check',
       admin: true,
       instanceId: 'xxxxxxx',
     }

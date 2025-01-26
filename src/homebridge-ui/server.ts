@@ -15,7 +15,7 @@ class PluginUiServer extends HomebridgePluginUiServer {
     */
     this.onRequest('getCachedAccessories', () => {
       try {
-        const plugin = 'homebridge-plugin-update-check'
+        const plugin = '@homebridge-plugins/homebridge-plugin-update-check'
         const devicesToReturn = []
 
         // The path and file of the cached accessories

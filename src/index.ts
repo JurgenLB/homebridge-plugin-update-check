@@ -29,7 +29,7 @@ import { UiApi } from './ui-api.js'
 let hap: HAP
 let Accessory: typeof PlatformAccessory
 
-const PLUGIN_NAME = 'homebridge-plugin-update-check'
+const PLUGIN_NAME = '@homebridge-plugins/homebridge-plugin-update-check'
 const PLATFORM_NAME = 'PluginUpdate'
 
 interface SensorInfo {
