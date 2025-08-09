@@ -1,3 +1,5 @@
+/* eslint-disable antfu/if-newline */
+
 import type {
   API,
   Characteristic,
@@ -24,7 +26,8 @@ import {
   PlatformAccessoryEvent,
 } from 'homebridge'
 
-import { UiApi } from './ui-api.js'
+// eslint-disable-next-line ts/consistent-type-imports
+import { InstalledPlugin, UiApi } from './ui-api.js'
 
 let hap: HAP
 let Accessory: typeof PlatformAccessory
@@ -47,6 +50,10 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
   private readonly useNcu: boolean
   private readonly isDocker: boolean
   private readonly sensorInfo: SensorInfo
+  private readonly checkHB: boolean
+  private readonly checkHBUI: boolean
+  private readonly checkPlugins: boolean
+  private readonly checkDocker: boolean
   private service?: Service
   private timer?: NodeJS.Timeout
 
@@ -58,20 +65,25 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
     this.config = config as PluginUpdatePlatformConfig
     this.api = api
 
-    this.uiApi = new UiApi(this.api.user.storagePath())
+    this.uiApi = new UiApi(this.api.user.storagePath(), this.log)
     this.useNcu = this.config.forceNcu || !this.uiApi.isConfigured()
     this.isDocker = fs.existsSync('/homebridge/package.json')
     this.sensorInfo = this.getSensorInfo(this.config.sensorType)
 
+    this.checkHB = this.config.checkHomebridgeUpdates ?? false
+    this.checkHBUI = this.config.checkHomebridgeUIUpdates ?? false
+    this.checkPlugins = this.config.checkPluginUpdates ?? false
+    this.checkDocker = this.config.checkDockerUpdates ?? false
+
     api.on(APIEvent.DID_FINISH_LAUNCHING, this.addUpdateAccessory.bind(this))
   }
 
-  async runNcu(args: Array<string>): Promise<any> {
+  async runNcu(args: Array<string>, filter: string = '/^(@.*\\/)?homebridge(-.*)?$/'): Promise<any> {
     args = [
       path.resolve(__dirname, '../node_modules/npm-check-updates/build/src/bin/cli.js'),
       '--jsonUpgraded',
       '--filter',
-      '/^(@.*\\/)?homebridge(-.*)?$/',
+      filter,
     ].concat(args)
 
     const output = await new Promise<string>((resolve, reject) => {
@@ -103,30 +115,88 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
   }
 
   async checkNcu(): Promise<number> {
-    let results = await this.runNcu(['--global'])
+    const homebridgeFilter = 'homebridge'
+    const homebridgeUIFilter = 'homebridge-config-ui-x'
+    const pluginsFilter = '(?=(@.*\\/)?homebridge-)(?:(?!homebridge-config-ui-x).)*'
+
+    const filters: string[] = []
+    if (this.checkHB) filters.push(homebridgeFilter)
+    if (this.checkHBUI) filters.push(homebridgeUIFilter)
+    if (this.checkPlugins) filters.push(pluginsFilter)
+
+    // eslint-disable-next-line prefer-template
+    const filter = '/^' + filters.join('|') + ')$/'
+
+    let results = await this.runNcu(['--global'], filter)
 
     if (this.isDocker) {
-      const dockerResults = await this.runNcu(['--packageFile', '/homebridge/package.json'])
-      results = { ...results, ...dockerResults }
+      const dockerPackageResults = await this.runNcu(['--packageFile', '/homebridge/package.json'], filter)
+      results = { ...results, ...dockerPackageResults }
+
+      const docker = await this.uiApi.getDocker()
+      if (docker.updateAvailable) {
+        results.push(docker)
+      }
     }
 
     const updates = Object.keys(results).length
-    this.log.debug(`npm-check-updates reports ${updates
-    } outdated package(s): ${JSON.stringify(results)}`)
+    this.log.debug(`npm-check-updates reports ${updates} available update(s): ${JSON.stringify(results)}`)
 
     return updates
   }
 
   async checkUi(): Promise<number> {
-    const plugins = await this.uiApi.getPlugins()
-    const homebridge = await this.uiApi.getHomebridge()
-    plugins.push(homebridge)
+    const updatesAvailable: InstalledPlugin[] = []
 
-    const results = plugins.filter(plugin => plugin.updateAvailable)
-    this.log.debug(`homebridge-config-ui-x reports ${results.length
-    } outdated package(s): ${JSON.stringify(results)}`)
+    if (this.checkHB) {
+      const homebridge = await this.uiApi.getHomebridge()
 
-    return results.length
+      if (homebridge.updateAvailable) {
+        updatesAvailable.push(homebridge)
+
+        this.log.info(`Homebridge update available: ${homebridge.latestVersion}`)
+      }
+    }
+
+    if (this.checkHBUI || this.checkPlugins) {
+      const plugins = await this.uiApi.getPlugins()
+
+      if (this.checkHBUI) {
+        const filteredPlugins = plugins.filter(plugin => plugin.name === 'homebridge-config-ui-x')
+
+        filteredPlugins.forEach((plugin) => {
+          if (plugin.updateAvailable) {
+            updatesAvailable.push(plugin)
+            this.log.info(`Homebridge UI update available: ${plugin.latestVersion}`)
+          }
+        })
+      }
+
+      if (this.checkPlugins) {
+        const filteredPlugins = plugins.filter(plugin => plugin.name !== 'homebridge-config-ui-x')
+
+        filteredPlugins.forEach((plugin) => {
+          if (plugin.updateAvailable) {
+            updatesAvailable.push(plugin)
+            this.log.info(`Homebridge plugin update available: ${plugin.name} ${plugin.latestVersion}`)
+          }
+        })
+      }
+    }
+
+    if (this.isDocker && this.checkDocker) {
+      const docker = await this.uiApi.getDocker()
+
+      if (docker.updateAvailable) {
+        updatesAvailable.push(docker)
+
+        this.log.info(`Docker update available: ${docker.latestVersion}`)
+      }
+    }
+
+    this.log.debug(`Found ${updatesAvailable.length} available update(s)`)
+
+    return updatesAvailable.length
   }
 
   doCheck(): void {
@@ -144,7 +214,7 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
         this.log.error(ex)
       })
       .finally((): void => {
-        this.timer = setTimeout(this.doCheck.bind(this), 8 * 60 * 60 * 1000)
+        this.timer = setTimeout(this.doCheck.bind(this), 60 * 60 * 1000)
       })
   }
 
@@ -266,7 +336,7 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
       this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [newAccessory])
     }
 
-    this.timer = setTimeout(this.doCheck.bind(this), 60 * 1000) // Oznu recommends waiting 60 seconds on start
+    this.timer = setTimeout(this.doCheck.bind(this), 10 * 1000)
   }
 
   getSensorInfo(sensorType?: string): SensorInfo {

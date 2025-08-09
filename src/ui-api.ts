@@ -1,5 +1,11 @@
+/* eslint-disable node/prefer-global/process */
+/* eslint-disable style/operator-linebreak */
+/* eslint-disable object-shorthand */
+/* eslint no-console: ["error", { allow: ["info", "warn", "error"] }] */
+
 import type {
   HomebridgeConfig,
+  Logging,
   PlatformIdentifier,
   PlatformName,
 } from 'homebridge'
@@ -33,12 +39,16 @@ interface UiConfig {
 }
 
 export class UiApi {
+  private log: Logging
   private readonly secrets?: SecretsFile
   private readonly baseUrl?: string
   private readonly httpsAgent?: https.Agent
   private token?: string
+  private readonly dockerUrl?: string
 
-  constructor(hbStoragePath: string) {
+  constructor(hbStoragePath: string, log: Logging) {
+    this.log = log
+
     const configPath = path.resolve(hbStoragePath, 'config.json')
     const hbConfig = JSON.parse(readFileSync(configPath, 'utf8')) as HomebridgeConfig
     const config = hbConfig.platforms.find((config: { platform: string }) =>
@@ -55,6 +65,11 @@ export class UiApi {
       const port = config.port ?? 8581
 
       this.baseUrl = `${protocol + host}:${port.toString()}`
+
+      const dockerProtocol = 'https://'
+      const dockerHost = 'hub.docker.com'
+
+      this.dockerUrl = `${dockerProtocol + dockerHost}`
 
       if (ssl) {
         this.httpsAgent = new https.Agent({ rejectUnauthorized: false }) // don't reject self-signed certs
@@ -85,6 +100,48 @@ export class UiApi {
     } else {
       return []
     }
+  }
+
+  public async getDocker(): Promise<InstalledPlugin> {
+    const currentDockerVersion = process.env.DOCKER_HOMEBRIDGE_VERSION
+
+    let dockerInfo: InstalledPlugin = {
+      name: '',
+      installedVersion: '',
+      latestVersion: '',
+      updateAvailable: false,
+    }
+
+    if (this.isConfigured() && currentDockerVersion !== undefined) {
+      const json = await this.makeDockerCall('/v2/repositories/homebridge/homebridge/tags/?page_size=30&page=1&ordering=last_updated')
+      const versions = json.results as any[]
+
+      const installedVersion = versions.filter(version => version.name === currentDockerVersion)[0]
+      const installedVersionDate = Date.parse(installedVersion.last_updated)
+
+      const availableVersions = versions.filter(version =>
+        !(version.name as string).includes('beta') &&
+        (Date.parse(version.last_updated) > installedVersionDate),
+      )
+      if (availableVersions.length > 0) {
+        dockerInfo = {
+          name: 'Docker image',
+          installedVersion: installedVersion,
+          latestVersion: availableVersions[0].name,
+          updateAvailable: true,
+        }
+      }
+    }
+
+    return dockerInfo
+  }
+
+  private async makeDockerCall(apiPath: string): Promise<any> {
+    const response = await axios.get(this.dockerUrl + apiPath, {
+      httpsAgent: this.httpsAgent,
+    })
+
+    return response.data
   }
 
   private async makeCall(apiPath: string): Promise<unknown> {
