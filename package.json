@@ -2,7 +2,7 @@
   "name": "@homebridge-plugins/homebridge-plugin-update-check",
   "displayName": "Homebridge Plugin Update Check",
   "type": "module",
-  "version": "2.1.0",
+  "version": "2.2.1",
   "description": "A Homebridge plugin for checking for updates to Homebridge and plugins",
   "author": "David Maher",
   "license": "BSD-2-Clause",
@@ -76,6 +76,7 @@
   "dependencies": {
     "@homebridge/plugin-ui-utils": "^2.1.0",
     "axios": "^1.11.0",
+    "croner": "^9.1.0",
     "jsonwebtoken": "^9.0.2",
     "npm-check-updates": "^18.0.2"
   },
