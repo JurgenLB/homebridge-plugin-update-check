@@ -63,6 +63,7 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
   private readonly autoUpdateHB: boolean
   private readonly autoUpdateHBUI: boolean
   private readonly autoUpdatePlugins: boolean
+  private readonly allowDirectNpmUpdates: boolean
 
   private service?: Service
 
@@ -95,6 +96,7 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
     this.autoUpdateHB = this.config.autoUpdateHomebridge ?? false
     this.autoUpdateHBUI = this.config.autoUpdateHomebridgeUI ?? false
     this.autoUpdatePlugins = this.config.autoUpdatePlugins ?? false
+    this.allowDirectNpmUpdates = this.config.allowDirectNpmUpdates ?? false
 
     api.on(APIEvent.DID_FINISH_LAUNCHING, this.addUpdateAccessory.bind(this))
   }
@@ -242,7 +244,7 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
         this.log.log(logLevel, `Homebridge update available: ${version}`)
 
         // Attempt automatic update if enabled
-        if (this.autoUpdateHB && !this.useNcu) {
+        if (this.autoUpdateHB && (!this.useNcu || this.allowDirectNpmUpdates)) {
           try {
             this.log.info(`Attempting to automatically update Homebridge to ${version}`)
             const success = await this.uiApi.updateHomebridge(version)
@@ -254,8 +256,8 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
           } catch (error) {
             this.log.error(`Error during automatic Homebridge update: ${error}`)
           }
-        } else if (this.autoUpdateHB && this.useNcu) {
-          this.log.warn('Automatic updates are only supported when homebridge-config-ui-x is available and configured')
+        } else if (this.autoUpdateHB && this.useNcu && !this.allowDirectNpmUpdates) {
+          this.log.warn('Automatic updates require either homebridge-config-ui-x to be available or "allowDirectNpmUpdates" to be enabled')
         }
 
         this.hbUpdates = [version]
@@ -279,7 +281,7 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
             this.log.log(logLevel, `Homebridge UI update available: ${version}`)
 
             // Attempt automatic update if enabled
-            if (this.autoUpdateHBUI && !this.useNcu) {
+            if (this.autoUpdateHBUI && (!this.useNcu || this.allowDirectNpmUpdates)) {
               try {
                 this.log.info(`Attempting to automatically update Homebridge UI to ${version}`)
                 const success = await this.uiApi.updatePlugin('homebridge-config-ui-x', version)
@@ -291,8 +293,8 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
               } catch (error) {
                 this.log.error(`Error during automatic Homebridge UI update: ${error}`)
               }
-            } else if (this.autoUpdateHBUI && this.useNcu) {
-              this.log.warn('Automatic updates are only supported when homebridge-config-ui-x is available and configured')
+            } else if (this.autoUpdateHBUI && this.useNcu && !this.allowDirectNpmUpdates) {
+              this.log.warn('Automatic updates require either homebridge-config-ui-x to be available or "allowDirectNpmUpdates" to be enabled')
             }
 
             this.hbUIUpdates = [version]
@@ -313,7 +315,7 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
             this.log.log(logLevel, `Homebridge plugin update available: ${plugin.name} ${plugin.latestVersion}`)
 
             // Attempt automatic update if enabled
-            if (this.autoUpdatePlugins && !this.useNcu) {
+            if (this.autoUpdatePlugins && (!this.useNcu || this.allowDirectNpmUpdates)) {
               try {
                 this.log.info(`Attempting to automatically update plugin ${plugin.name} to ${version}`)
                 const success = await this.uiApi.updatePlugin(plugin.name, version)
@@ -325,8 +327,8 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
               } catch (error) {
                 this.log.error(`Error during automatic plugin update for ${plugin.name}: ${error}`)
               }
-            } else if (this.autoUpdatePlugins && this.useNcu) {
-              this.log.warn('Automatic updates are only supported when homebridge-config-ui-x is available and configured')
+            } else if (this.autoUpdatePlugins && this.useNcu && !this.allowDirectNpmUpdates) {
+              this.log.warn('Automatic updates require either homebridge-config-ui-x to be available or "allowDirectNpmUpdates" to be enabled')
             }
 
             this.pluginUpdates.push(version)

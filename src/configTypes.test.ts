@@ -38,6 +38,7 @@ describe('pluginUpdatePlatformConfig', () => {
       autoUpdateHomebridge: true,
       autoUpdateHomebridgeUI: false,
       autoUpdatePlugins: true,
+      allowDirectNpmUpdates: false,
     }
     expect(config.platform).toBe('ExamplePlatform')
     expect(config.forceNcu).toBe(true)
@@ -46,6 +47,7 @@ describe('pluginUpdatePlatformConfig', () => {
     expect(config.autoUpdateHomebridge).toBe(true)
     expect(config.autoUpdateHomebridgeUI).toBe(false)
     expect(config.autoUpdatePlugins).toBe(true)
+    expect(config.allowDirectNpmUpdates).toBe(false)
   })
 
   it('should allow auto-update properties to be set independently', () => {
@@ -58,5 +60,13 @@ describe('pluginUpdatePlatformConfig', () => {
     expect(config.autoUpdateHomebridge).toBe(true)
     expect(config.autoUpdateHomebridgeUI).toBe(false)
     expect(config.autoUpdatePlugins).toBe(true)
+  })
+
+  it('should allow allowDirectNpmUpdates property to be set', () => {
+    const config: PluginUpdatePlatformConfig = {
+      platform: 'ExamplePlatform',
+      allowDirectNpmUpdates: true,
+    }
+    expect(config.allowDirectNpmUpdates).toBe(true)
   })
 })

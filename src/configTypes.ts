@@ -11,4 +11,5 @@ export interface PluginUpdatePlatformConfig {
   autoUpdateHomebridge?: boolean
   autoUpdateHomebridgeUI?: boolean
   autoUpdatePlugins?: boolean
+  allowDirectNpmUpdates?: boolean
 }

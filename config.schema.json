@@ -110,6 +110,12 @@
         "type": "boolean",
         "description": "Automatically install plugin updates when available (requires homebridge-config-ui-x and sufficient npm privileges)", 
         "default": false
+      },
+      "allowDirectNpmUpdates": {
+        "title": "Allow direct npm updates",
+        "type": "boolean",
+        "description": "Allow automatic updates using direct npm commands even when homebridge-config-ui-x is not available (requires sufficient npm privileges)",
+        "default": false
       }
     }
   }

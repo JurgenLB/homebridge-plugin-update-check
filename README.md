@@ -28,6 +28,7 @@ Configuration sample:
         "autoUpdateHomebridge": false,
         "autoUpdateHomebridgeUI": false,
         "autoUpdatePlugins": false,
+        "allowDirectNpmUpdates": false,
         "forceNcu": false,
         "platform": "PluginUpdate"
     }
@@ -45,13 +46,16 @@ Configuration sample:
 * "autoUpdateHomebridge": Automatically install Homebridge updates when available (Default: `false`)
 * "autoUpdateHomebridgeUI": Automatically install Homebridge Config UI updates when available (Default: `false`)
 * "autoUpdatePlugins": Automatically install plugin updates when available (Default: `false`)
+* "allowDirectNpmUpdates": Allow automatic updates using direct npm commands even when homebridge-config-ui-x is not available (Default: `false`)
 * "forceNcu": Force use of npm-check-updates instead of homebridge-config-ui-x. (Default: `false`)
 
 Homebridge, Homebridge UI, plugin, and Docker updates can be selected independently. This allows you for example, to ignore available Homebridge, Homebridge UI available updates if you are running Homebridge in a Docker container and wish to only update these components when a new Docker image is available.
 
 **Note on Automatic Updates:** When automatic updates are enabled, the plugin will attempt to install updates via npm commands. This requires:
-- homebridge-config-ui-x to be installed and properly configured (automatic updates are disabled when `forceNcu` is true)
+- homebridge-config-ui-x to be installed and properly configured (unless `allowDirectNpmUpdates` is enabled)
 - Sufficient privileges to install global npm packages
 - Proper backup and recovery procedures in place
 
 Automatic updates are disabled by default for safety. Enable them only if you trust automatic updates and have proper backups in place. Docker container updates are not supported via automatic updates for safety reasons.
+
+When `allowDirectNpmUpdates` is enabled, automatic updates will work even when homebridge-config-ui-x is not available by using direct npm commands. This provides more flexibility but requires ensuring you have the necessary npm privileges.
