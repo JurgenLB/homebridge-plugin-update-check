@@ -10,9 +10,11 @@ import type {
   PlatformName,
 } from 'homebridge'
 
+import { spawn } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import https from 'node:https'
 import path from 'node:path'
+import process from 'node:process'
 
 import axios from 'axios'
 import jwt from 'jsonwebtoken'
@@ -134,6 +136,69 @@ export class UiApi {
     }
 
     return dockerInfo
+  }
+
+  public async updateHomebridge(targetVersion?: string): Promise<boolean> {
+    this.log.info(`Attempting to update Homebridge${targetVersion ? ` to ${targetVersion}` : ' to latest version'}`)
+    
+    try {
+      const args = ['install', '-g', `homebridge${targetVersion ? `@${targetVersion}` : '@latest'}`]
+      const result = await this.runNpmCommand(args)
+      this.log.info('Homebridge update command completed successfully')
+      return true
+    } catch (error) {
+      this.log.error(`Failed to update Homebridge: ${error}`)
+      return false
+    }
+  }
+
+  public async updatePlugin(pluginName: string, targetVersion?: string): Promise<boolean> {
+    this.log.info(`Attempting to update plugin ${pluginName}${targetVersion ? ` to ${targetVersion}` : ' to latest version'}`)
+    
+    try {
+      const args = ['install', '-g', `${pluginName}${targetVersion ? `@${targetVersion}` : '@latest'}`]
+      const result = await this.runNpmCommand(args)
+      this.log.info(`Plugin ${pluginName} update command completed successfully`)
+      return true
+    } catch (error) {
+      this.log.error(`Failed to update plugin ${pluginName}: ${error}`)
+      return false
+    }
+  }
+
+  private async runNpmCommand(args: string[]): Promise<string> {
+    return new Promise((resolve, reject) => {
+      try {
+        const npm = spawn('npm', args, {
+          env: process.env,
+        })
+        
+        let stdout = ''
+        let stderr = ''
+        
+        npm.stdout.on('data', (chunk: any) => {
+          stdout += chunk.toString()
+        })
+        
+        npm.stderr.on('data', (chunk: any) => {
+          stderr += chunk.toString()
+        })
+        
+        npm.on('close', (code) => {
+          if (code === 0) {
+            resolve(stdout)
+          } else {
+            reject(new Error(`npm command failed with code ${code}: ${stderr}`))
+          }
+        })
+        
+        npm.on('error', (error) => {
+          reject(error)
+        })
+      } catch (ex) {
+        reject(ex)
+      }
+    })
   }
 
   private async makeDockerCall(apiPath: string): Promise<any> {

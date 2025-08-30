@@ -60,6 +60,9 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
   private readonly checkHBUI: boolean
   private readonly checkPlugins: boolean
   private readonly checkDocker: boolean
+  private readonly autoUpdateHB: boolean
+  private readonly autoUpdateHBUI: boolean
+  private readonly autoUpdatePlugins: boolean
 
   private service?: Service
 
@@ -88,6 +91,10 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
     this.checkHBUI = this.config.checkHomebridgeUIUpdates ?? false
     this.checkPlugins = this.config.checkPluginUpdates ?? false
     this.checkDocker = this.config.checkDockerUpdates ?? false
+
+    this.autoUpdateHB = this.config.autoUpdateHomebridge ?? false
+    this.autoUpdateHBUI = this.config.autoUpdateHomebridgeUI ?? false
+    this.autoUpdatePlugins = this.config.autoUpdatePlugins ?? false
 
     api.on(APIEvent.DID_FINISH_LAUNCHING, this.addUpdateAccessory.bind(this))
   }
@@ -234,6 +241,23 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
         if (this.hbUpdates.length === 0 || !this.hbUpdates.includes(version)) logLevel = LogLevel.INFO
         this.log.log(logLevel, `Homebridge update available: ${version}`)
 
+        // Attempt automatic update if enabled
+        if (this.autoUpdateHB && !this.useNcu) {
+          try {
+            this.log.info(`Attempting to automatically update Homebridge to ${version}`)
+            const success = await this.uiApi.updateHomebridge(version)
+            if (success) {
+              this.log.info(`Successfully initiated Homebridge update to ${version}`)
+            } else {
+              this.log.warn(`Failed to initiate Homebridge update to ${version}`)
+            }
+          } catch (error) {
+            this.log.error(`Error during automatic Homebridge update: ${error}`)
+          }
+        } else if (this.autoUpdateHB && this.useNcu) {
+          this.log.warn('Automatic updates are only supported when homebridge-config-ui-x is available and configured')
+        }
+
         this.hbUpdates = [version]
       }
     }
@@ -245,7 +269,7 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
         const homebridgeUiPlugins = plugins.filter(plugin => plugin.name === 'homebridge-config-ui-x')
 
         // Only one plugin is returned
-        homebridgeUiPlugins.forEach((homebridgeUI) => {
+        for (const homebridgeUI of homebridgeUiPlugins) {
           if (homebridgeUI.updateAvailable) {
             updatesAvailable.push(homebridgeUI)
 
@@ -254,15 +278,32 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
             if (this.hbUIUpdates.length === 0 || !this.hbUIUpdates.includes(version)) logLevel = LogLevel.INFO
             this.log.log(logLevel, `Homebridge UI update available: ${version}`)
 
+            // Attempt automatic update if enabled
+            if (this.autoUpdateHBUI && !this.useNcu) {
+              try {
+                this.log.info(`Attempting to automatically update Homebridge UI to ${version}`)
+                const success = await this.uiApi.updatePlugin('homebridge-config-ui-x', version)
+                if (success) {
+                  this.log.info(`Successfully initiated Homebridge UI update to ${version}`)
+                } else {
+                  this.log.warn(`Failed to initiate Homebridge UI update to ${version}`)
+                }
+              } catch (error) {
+                this.log.error(`Error during automatic Homebridge UI update: ${error}`)
+              }
+            } else if (this.autoUpdateHBUI && this.useNcu) {
+              this.log.warn('Automatic updates are only supported when homebridge-config-ui-x is available and configured')
+            }
+
             this.hbUIUpdates = [version]
           }
-        })
+        }
       }
 
       if (this.checkPlugins) {
         const filteredPlugins = plugins.filter(plugin => plugin.name !== 'homebridge-config-ui-x')
 
-        filteredPlugins.forEach((plugin) => {
+        for (const plugin of filteredPlugins) {
           if (plugin.updateAvailable) {
             updatesAvailable.push(plugin)
 
@@ -271,9 +312,26 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
             if (this.pluginUpdates.length === 0 || !this.pluginUpdates.includes(version)) logLevel = LogLevel.INFO
             this.log.log(logLevel, `Homebridge plugin update available: ${plugin.name} ${plugin.latestVersion}`)
 
+            // Attempt automatic update if enabled
+            if (this.autoUpdatePlugins && !this.useNcu) {
+              try {
+                this.log.info(`Attempting to automatically update plugin ${plugin.name} to ${version}`)
+                const success = await this.uiApi.updatePlugin(plugin.name, version)
+                if (success) {
+                  this.log.info(`Successfully initiated plugin update: ${plugin.name} to ${version}`)
+                } else {
+                  this.log.warn(`Failed to initiate plugin update: ${plugin.name} to ${version}`)
+                }
+              } catch (error) {
+                this.log.error(`Error during automatic plugin update for ${plugin.name}: ${error}`)
+              }
+            } else if (this.autoUpdatePlugins && this.useNcu) {
+              this.log.warn('Automatic updates are only supported when homebridge-config-ui-x is available and configured')
+            }
+
             this.pluginUpdates.push(version)
           }
-        })
+        }
       }
     }
 

@@ -8,4 +8,7 @@ export interface PluginUpdatePlatformConfig {
   checkHomebridgeUIUpdates?: boolean
   checkPluginUpdates?: boolean
   checkDockerUpdates?: boolean
+  autoUpdateHomebridge?: boolean
+  autoUpdateHomebridgeUI?: boolean
+  autoUpdatePlugins?: boolean
 }
