@@ -151,7 +151,7 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
 
   async runNcu(args: Array<string>, filter: string = '/^(@.*\\/)?homebridge(-.*)?$/'): Promise<any> {
     args = [
-      path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../node_modules/npm-check-updates/build/src/bin/cli.js'),
+      path.resolve(__dirname, '../node_modules/npm-check-updates/build/cli.js'),
       '--jsonUpgraded',
       '--filter',
       filter,
