@@ -305,6 +305,8 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
       if (this.checkPlugins) {
         const filteredPlugins = plugins.filter(plugin => plugin.name !== 'homebridge-config-ui-x')
 
+        const tempUpdates: string[] = []
+
         for (const plugin of filteredPlugins) {
           if (plugin.updateAvailable) {
             updatesAvailable.push(plugin)
@@ -331,9 +333,11 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
               this.log.warn('Automatic updates require either homebridge-config-ui-x to be available or "allowDirectNpmUpdates" to be enabled')
             }
 
-            this.pluginUpdates.push(version)
+            tempUpdates.push(version)
           }
         }
+
+        this.pluginUpdates = tempUpdates
       }
     }
 
