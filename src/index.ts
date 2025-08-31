@@ -1,6 +1,3 @@
-/* eslint-disable object-shorthand */
-/* eslint-disable perfectionist/sort-imports */
-/* eslint-disable antfu/if-newline */
 
 import type {
   API,
@@ -32,7 +29,6 @@ import { fileURLToPath } from 'node:url'
 
 import { Cron } from 'croner'
 
-// eslint-disable-next-line ts/consistent-type-imports
 import { InstalledPlugin, UiApi } from './ui-api.js'
 
 const __filename = fileURLToPath(import.meta.url);
