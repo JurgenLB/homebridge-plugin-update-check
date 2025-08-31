@@ -35,6 +35,9 @@ import { Cron } from 'croner'
 // eslint-disable-next-line ts/consistent-type-imports
 import { InstalledPlugin, UiApi } from './ui-api.js'
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 let hap: HAP
 let Accessory: typeof PlatformAccessory
 
@@ -187,9 +190,9 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
     )
   }
 
+  // Use global 'ncu' instead of local path
   async runNcu(args: Array<string>, filter: string = '/^(@.*\\/)?homebridge(-.*)?$/'): Promise<any> {
     args = [
-      path.resolve(__dirname, '../node_modules/npm-check-updates/build/cli.js'),
       '--jsonUpgraded',
       '--filter',
       filter,
@@ -197,7 +200,7 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
 
     const output = await new Promise<string>((resolve, reject) => {
       try {
-        const ncu = spawn(process.argv0, args, {
+        const ncu = spawn('ncu', args, {
           env: this.isDocker ? { ...process.env, HOME: '/homebridge' } : undefined,
         })
         let stdout = ''
@@ -507,7 +510,6 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
     const monoxideService = accessory.getService(hap.Service.CarbonMonoxideSensor);
     const dioxideService = accessory.getService(hap.Service.CarbonDioxideSensor);
     const airService = accessory.getService(hap.Service.AirQualitySensor);
-
     if (this.sensorInfo.serviceType == hap.Service.MotionSensor) {
       this.service = motionService;
     } else if (motionService) {
