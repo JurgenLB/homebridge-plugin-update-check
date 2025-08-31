@@ -496,6 +496,67 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
     this.checkService(accessory, hap.Service.CarbonDioxideSensor)
     this.checkService(accessory, hap.Service.AirQualitySensor)
 
+    /* const motionService = accessory.getService(hap.Service.MotionSensor);
+    const contactService = accessory.getService(hap.Service.ContactSensor);
+    const occupancyService = accessory.getService(hap.Service.OccupancySensor);
+    const smokeService = accessory.getService(hap.Service.SmokeSensor);
+    const leakService = accessory.getService(hap.Service.LeakSensor);
+    const lightService = accessory.getService(hap.Service.LightSensor);
+    const humidityService = accessory.getService(hap.Service.HumiditySensor);
+    const monoxideService = accessory.getService(hap.Service.CarbonMonoxideSensor);
+    const dioxideService = accessory.getService(hap.Service.CarbonDioxideSensor);
+    const airService = accessory.getService(hap.Service.AirQualitySensor);
+    if (this.sensorInfo.serviceType == hap.Service.MotionSensor) {
+      this.service = motionService;
+    } else if (motionService) {
+      accessory.removeService(motionService);
+    }
+    if (this.sensorInfo.serviceType == hap.Service.ContactSensor) {
+      this.service = contactService;
+    } else if (contactService) {
+      accessory.removeService(contactService);
+    }
+    if (this.sensorInfo.serviceType == hap.Service.OccupancySensor) {
+      this.service = occupancyService;
+    } else if (occupancyService) {
+      accessory.removeService(occupancyService);
+    }
+    if (this.sensorInfo.serviceType == hap.Service.SmokeSensor) {
+      this.service = smokeService;
+    } else if (smokeService) {
+      accessory.removeService(smokeService);
+    }
+    if (this.sensorInfo.serviceType == hap.Service.LeakSensor) {
+      this.service = leakService;
+    } else if (leakService) {
+      accessory.removeService(leakService);
+    }
+    if (this.sensorInfo.serviceType == hap.Service.LightSensor) {
+      this.service = lightService;
+    } else if (lightService) {
+      accessory.removeService(lightService);
+    }
+    if (this.sensorInfo.serviceType == hap.Service.HumiditySensor) {
+      this.service = humidityService;
+    } else if (humidityService) {
+      accessory.removeService(humidityService);
+    }
+    if (this.sensorInfo.serviceType == hap.Service.CarbonMonoxideSensor) {
+      this.service = monoxideService;
+    } else if (monoxideService) {
+      accessory.removeService(monoxideService);
+    }
+    if (this.sensorInfo.serviceType == hap.Service.CarbonDioxideSensor) {
+      this.service = dioxideService;
+    } else if (dioxideService) {
+      accessory.removeService(dioxideService);
+    }
+    if (this.sensorInfo.serviceType == hap.Service.AirQualitySensor) {
+      this.service = airService;
+    } else if (airService) {
+      accessory.removeService(airService);
+    } */
+
     this.service?.setCharacteristic(this.sensorInfo.characteristicType, this.sensorInfo.untrippedValue)
   }
 
