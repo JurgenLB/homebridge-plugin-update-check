@@ -23,7 +23,7 @@ import {
 
 import type { PluginUpdatePlatformConfig } from './configTypes.js'
 
-import { spawn } from 'node:child_process'
+import { spawnSync, spawn } from 'node:child_process'
 import fs from 'node:fs'
 import { hostname } from 'node:os'
 import path from 'node:path'
@@ -45,6 +45,22 @@ interface SensorInfo {
   characteristicType: WithUUID<new () => Characteristic>
   trippedValue: CharacteristicValue
   untrippedValue: CharacteristicValue
+}
+
+function ensureNcuInstalled() {
+  // Check if ncu is available
+  const check = spawnSync('ncu', ['--version'], { encoding: 'utf8' });
+
+  if (check.error || check.status !== 0) {
+    console.log('npm-check-updates (ncu) not found. Installing globally...');
+    const install = spawnSync('npm', ['install', '-g', 'npm-check-updates'], { stdio: 'inherit' });
+    if (install.error || install.status !== 0) {
+      throw new Error('Failed to install npm-check-updates globally. Please install it manually.');
+    }
+    console.log('npm-check-updates installed successfully.');
+  } else {
+    console.log('npm-check-updates (ncu) is already installed.');
+  }
 }
 
 class PluginUpdatePlatform implements DynamicPlatformPlugin {
@@ -147,6 +163,8 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
       },
     )
   }
+
+  ensureNcuInstalled();
 
   async runNcu(args: Array<string>, filter: string = '/^(@.*\\/)?homebridge(-.*)?$/'): Promise<any> {
     args = [
