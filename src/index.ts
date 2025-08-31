@@ -215,7 +215,7 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
     if (this.checkPlugins) filters.push(pluginsFilter)
 
     // eslint-disable-next-line prefer-template
-    const filter = '/^' + filters.join('|') + ')$/'
+    const filter = '/^(' + filters.join('|') + ')$/'
 
     let results = await this.runNcu(['--global'], filter)
 
