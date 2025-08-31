@@ -510,7 +510,7 @@ class PluginUpdatePlatform implements DynamicPlatformPlugin {
     const monoxideService = accessory.getService(hap.Service.CarbonMonoxideSensor);
     const dioxideService = accessory.getService(hap.Service.CarbonDioxideSensor);
     const airService = accessory.getService(hap.Service.AirQualitySensor);
-    
+
     if (this.sensorInfo.serviceType == hap.Service.MotionSensor) {
       this.service = motionService;
     } else if (motionService) {
