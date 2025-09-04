@@ -28,7 +28,7 @@ import fs from 'node:fs'
 import { hostname } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
-
+import { fileURLToPath } from 'node:url'
 import { Cron } from 'croner'
 
 // eslint-disable-next-line ts/consistent-type-imports
@@ -39,6 +39,8 @@ let Accessory: typeof PlatformAccessory
 
 const PLUGIN_NAME = '@homebridge-plugins/homebridge-plugin-update-check'
 const PLATFORM_NAME = 'PluginUpdate'
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 interface SensorInfo {
   serviceType: WithUUID<typeof Service>
