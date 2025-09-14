@@ -1,6 +1,9 @@
-# Changelog
+## [2.3.3](https://github.com/homebridge-plugins/homebridge-plugin-update-check/releases/tag/v2.3.3) (2025-09-14)
 
-All notable changes to this project will be documented in this file. This project uses [Semantic Versioning](https://semver.org/)
+### What's Changed
+- v2.3.3 ([b7a4c9e](https://github.com/homebridge-plugins/homebridge-plugin-update-check/commit/b7a4c9ec2b079b6f3e51411311573080b281d97c))
+
+**Full Changelog**: https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/v2.3.2...v2.3.3
 
 ## [2.3.2](https://github.com/homebridge-plugins/homebridge-plugin-update-check/releases/tag/v2.3.2) (2025-09-13)
 
