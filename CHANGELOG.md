@@ -1,6 +1,13 @@
 ## [2.3.3](https://github.com/homebridge-plugins/homebridge-plugin-update-check/releases/tag/v2.3.3) (2025-09-14)
 
 ### What's Changed
+- v2.3.3 ([948e9c2](https://github.com/homebridge-plugins/homebridge-plugin-update-check/commit/948e9c22d6ad5d040864407a81a8a309228825e4))
+
+**Full Changelog**: https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/v2.3.2...v2.3.3
+
+## [2.3.3](https://github.com/homebridge-plugins/homebridge-plugin-update-check/releases/tag/v2.3.3) (2025-09-14)
+
+### What's Changed
 - v2.3.3 ([b7a4c9e](https://github.com/homebridge-plugins/homebridge-plugin-update-check/commit/b7a4c9ec2b079b6f3e51411311573080b281d97c))
 
 **Full Changelog**: https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/v2.3.2...v2.3.3
