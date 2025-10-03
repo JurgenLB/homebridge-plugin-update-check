@@ -1,6 +1,5 @@
+/* eslint-disable style/brace-style */
 /* eslint-disable style/operator-linebreak */
-/* eslint-disable object-shorthand */
-/* eslint no-console: ["error", { allow: ["info", "warn", "error"] }] */
 
 import type {
   HomebridgeConfig,
@@ -49,17 +48,18 @@ export class UiApi {
   private token?: string
   private readonly dockerUrl?: string
   private readonly cacheable: CacheableLookup
+  private readonly hbStoragePath: string
 
   constructor(hbStoragePath: string, log: Logging) {
     this.log = log
+    this.hbStoragePath = hbStoragePath
 
     axiosRetry(axios, {
       retries: 3,
       retryDelay: (...arg) => axiosRetry.exponentialDelay(...arg, 1000),
 
-      // eslint-disable-next-line unused-imports/no-unused-vars
-      onRetry: (retryCount, error, _requestConfig) => {
-        this.log.debug(`retry count: ${retryCount}, error: ${error.message}`)
+      onRetry: (retryCount, error, requestConfig) => {
+        this.log.debug(`${requestConfig.url} - retry count: ${retryCount}, error: ${error.message}`)
       },
     })
     this.cacheable = new CacheableLookup()
@@ -98,14 +98,18 @@ export class UiApi {
 
   public async getHomebridge(): Promise<InstalledPlugin> {
     if (this.isConfigured()) {
-      return await this.makeCall('/api/status/homebridge-version') as InstalledPlugin
-    } else {
-      return {
-        name: '',
-        installedVersion: '',
-        latestVersion: '',
-        updateAvailable: false,
+      const result = await this.makeCall('/api/status/homebridge-version') as Array<InstalledPlugin>
+
+      if (result.length > 0) {
+        return result[0]
       }
+    }
+
+    return {
+      name: '',
+      installedVersion: '',
+      latestVersion: '',
+      updateAvailable: false,
     }
   }
 
@@ -113,6 +117,36 @@ export class UiApi {
     if (this.isConfigured()) {
       return await this.makeCall('/api/plugins') as Array<InstalledPlugin>
     } else {
+      return []
+    }
+  }
+
+  public async getIgnoredPlugins(): Promise<Array<string>> {
+    if (this.isConfigured()) {
+      try {
+        this.log.debug('Calling /api/config-editor/ui/plugins/hide-updates-for API endpoint')
+        const result = await this.makeCall('/api/config-editor/ui/plugins/hide-updates-for')
+
+        // Validate the response format
+        if (!Array.isArray(result)) {
+          this.log.warn(`Unexpected response format from ignored plugins API: ${typeof result}, expected array`)
+          return []
+        }
+
+        const ignoredPlugins = result as Array<string>
+        this.log.debug(`API returned ${ignoredPlugins.length} ignored plugins: ${ignoredPlugins.join(', ')}`)
+        return ignoredPlugins
+      } catch (error: any) {
+        // Check if it's a 404 error (API endpoint doesn't exist)
+        if (error?.response?.status === 404) {
+          this.log.warn('Ignored plugins API endpoint not found - requires homebridge-config-ui-x v5.6.2-beta.2 or later')
+        } else {
+          this.log.warn(`Failed to retrieve ignored plugins list from /config-editor/ui/plugins/hide-updates-for: ${error}`)
+        }
+        return []
+      }
+    } else {
+      this.log.debug('homebridge-config-ui-x not configured, cannot retrieve ignored plugins list')
       return []
     }
   }
@@ -302,47 +336,93 @@ export class UiApi {
   }
 
   private async makeRestartCall(apiPath: string): Promise<unknown> {
-    const response = await axios.put(this.baseUrl + apiPath, {}, {
-      headers: {
-        Authorization: `Bearer ${this.getToken()}`,
-      },
-      httpsAgent: this.httpsAgent,
-    })
+    return axios
+      .put(this.baseUrl + apiPath, {}, {
+        headers: {
+          Authorization: `Bearer ${this.getToken()}`,
+        },
+        httpsAgent: this.httpsAgent,
+      })
+      .then((response) => {
+        return response.data
+      })
+      .catch((error) => {
+        // At this point, we should have exhausted the retries
 
-    return response.data
+        this.log.error(`${error.code} error connecting to ${this.baseUrl + apiPath}`)
+
+        return null
+      })
   }
 
   private async makeBackupCall(apiPath: string): Promise<unknown> {
-    const response = await axios.post(this.baseUrl + apiPath, {}, {
-      headers: {
-        Authorization: `Bearer ${this.getToken()}`,
-      },
-      httpsAgent: this.httpsAgent,
-      timeout: 60000, // 60 second timeout for backup operations
-    })
+    return axios
+      .post(this.baseUrl + apiPath, {}, {
+        headers: {
+          Authorization: `Bearer ${this.getToken()}`,
+        },
+        httpsAgent: this.httpsAgent,
+        timeout: 60000, // 60 second timeout for backup operations
+      })
+      .then((response) => {
+        return response.data
+      })
+      .catch((error) => {
+        // At this point, we should have exhausted the retries
 
-    return response.data
+        this.log.error(`${error.code} error connecting to ${this.baseUrl + apiPath}`)
+
+        return null
+      })
   }
 
   private async makeDockerCall(apiPath: string): Promise<any> {
-    const response = await axios.get(this.dockerUrl + apiPath, {
-      httpsAgent: this.httpsAgent,
-      lookup: this.cacheable.lookup,
-    })
+    return axios
+      .get(this.dockerUrl + apiPath, {
+        httpsAgent: this.httpsAgent,
+        lookup: this.cacheable.lookup,
+        timeout: 60000,
+      })
+      .then((response) => {
+        return response.data
+      })
+      .catch((error) => {
+        // At this point, we should have exhausted the retries
 
-    return response.data
+        if (error.code === 'ETIMEOUT') {
+          this.log.error(`Timeout error connecting to ${this.dockerUrl}`)
+        }
+        else {
+          this.log.error(`${error.code} error connecting to ${this.dockerUrl}`)
+        }
+
+        return '{ "count": 0, "results": [] }'
+      })
   }
 
-  private async makeCall(apiPath: string): Promise<unknown> {
-    const response = await axios.get(this.baseUrl + apiPath, {
-      headers: {
-        Authorization: `Bearer ${this.getToken()}`,
-      },
-      httpsAgent: this.httpsAgent,
-      lookup: this.cacheable.lookup,
-    })
+  private async makeCall(apiPath: string): Promise<any[]> {
+    return axios
+      .get(this.baseUrl + apiPath, {
+        headers: {
+          Authorization: `Bearer ${this.getToken()}`,
+        },
+        httpsAgent: this.httpsAgent,
+        lookup: this.cacheable.lookup,
+      })
+      .then((response) => {
+        this.log.debug(`${this.baseUrl + apiPath}: ${JSON.stringify(response.data)}`)
+        if (!Array.isArray(response.data)) {
+          return [response.data]
+        }
+        return response.data
+      })
+      .catch((error) => {
+        // At this point, we should have exhausted the retries
 
-    return response.data
+        this.log.error(`${error.code} error connecting to ${this.baseUrl + apiPath}`)
+
+        return []
+      })
   }
 
   public getToken(): string {
