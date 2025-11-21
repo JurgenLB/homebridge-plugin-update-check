@@ -68,8 +68,9 @@ export class UiApi {
         this.log.debug(`${requestConfig.url} - retry count: ${retryCount}, error: ${error.message}`)
       },
     })
-    this.cacheable = new CacheableLookup()
-
+    const MAX_TTL_SEC = 86400; // limit TTL to 24 hours
+    this.cacheable = new CacheableLookup({ maxTtl: MAX_TTL_SEC });
+    
     const configPath = path.resolve(hbStoragePath, 'config.json')
     const hbConfig = JSON.parse(readFileSync(configPath, 'utf8')) as HomebridgeConfig
     const config = hbConfig.platforms.find((config: { platform: string }) =>
