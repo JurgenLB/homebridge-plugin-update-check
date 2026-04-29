@@ -9,6 +9,18 @@
   "schema": {
     "type": "object",
     "properties": {
+                  "autoUpdateNode": {
+                    "title": "Auto-update Node.js",
+                    "type": "boolean",
+                    "description": "Automatically update Node.js using hb-service update-node when a new LTS version is available and supported.",
+                    "default": false
+                  },
+            "checkNodeUpdates": {
+              "title": "Check for Node.js updates",
+              "type": "boolean",
+              "description": "Check if a newer LTS version of Node.js is available.",
+              "default": false
+            },
       "name": {
         "title": "Name",
         "type": "string",
@@ -179,6 +191,18 @@
         "title": "Respect disabled plugin update notifications",
         "type": "boolean",
         "description": "When enabled, respects the 'Hide update notifications for this plugin' setting from homebridge-config-ui-x. Plugins marked to hide updates will not trigger notifications.",
+        "default": true
+      },
+      "enableMatter": {
+        "title": "Enable Matter support",
+        "type": "boolean",
+        "description": "Enable Homebridge Matter support when running on Homebridge v2.0 or later with Matter enabled.",
+        "default": true
+      },
+      "preferMatter": {
+        "title": "Prefer Matter over HAP",
+        "type": "boolean",
+        "description": "When both Matter and HAP are available, prefer the Matter platform implementation.",
         "default": true
       },
       "": {
