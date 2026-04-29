@@ -15,14 +15,16 @@ export class PluginUpdateMatterPlatform {
   private readonly log: Logging;
   private readonly config: PlatformConfig;
   private readonly api: API;
-  private readonly updateCore: UpdateCheckCore;
+  // ESM: Cannot reliably detect Docker at runtime synchronously; always false here
+  private updateCore: UpdateCheckCore;
   private matterDevices: any[] = [];
 
   constructor(log: Logging, config: PlatformConfig, api: API) {
     this.log = log;
     this.config = config;
     this.api = api;
-    const isDocker = require('node:fs').existsSync('/homebridge/package.json');
+    // ESM: Cannot reliably detect Docker at runtime synchronously; always false here
+    const isDocker = false;
     this.updateCore = new UpdateCheckCore(log, config, api.user.storagePath(), isDocker);
     log.info('PluginUpdateMatterPlatform: Initialized with Homebridge Matter support');
     api.on('didFinishLaunching', this.addUpdateMatterDevice.bind(this));

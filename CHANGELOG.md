@@ -1,5 +1,16 @@
+## [3.0.1](https://github.com/homebridge-plugins/homebridge-plugin-update-check/releases/tag/v3.0.1) (2026-04-29)
+
+### Bug Fixes
+- Fixed crash in Matter platform when running under ESM: removed use of `require` and now initialize Docker detection synchronously for compatibility with Homebridge v2.0+ and Node.js ESM environments.
+
+### Other
+- Internal refactor: clarified ESM limitations for Docker detection in Matter platform constructor.
+
+**Full Changelog**: https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/v3.0.0...v3.0.1
+
 ## [3.0.0](https://github.com/homebridge-plugins/homebridge-plugin-update-check/releases/tag/v3.0.0) (2026-04-29)
 
+## What's Changed
 ### Enhancements
 - Node.js update check and auto-update:
   - The plugin can now check for new Node.js LTS versions and notify if an update is available. Controlled by the new `checkNodeUpdates` config option. Implements [#206](https://github.com/homebridge-plugins/homebridge-plugin-update-check/issues/206).
