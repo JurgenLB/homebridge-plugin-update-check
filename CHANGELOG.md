@@ -1,3 +1,12 @@
+## [3.0.3](https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/v3.0.2...v3.0.3) (2026-05-03)
+
+
+### Bug Fixes
+
+* respect `failureSensorType: "none"` and auto-disable failure sensor when no auto-updates are configured ([#231](https://github.com/homebridge-plugins/homebridge-plugin-update-check/issues/231)) ([c007709](https://github.com/homebridge-plugins/homebridge-plugin-update-check/commit/c007709301063abe5df1ca3b24fae12c1f50e75e))
+
+
+
 ## [3.0.2](https://github.com/homebridge-plugins/homebridge-plugin-update-check/releases/tag/v3.0.2) (2026-05-02)
 
 ### Enhancements
