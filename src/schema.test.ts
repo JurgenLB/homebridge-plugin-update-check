@@ -41,7 +41,7 @@ describe('config schema validation', () => {
         const config = {
           name,
           sensorType: 'motion',
-          platform: 'PluginUpdate',
+          platform: 'HomebridgeUpdater',
         }
 
         const validate = ajv.compile(schema)
@@ -76,7 +76,7 @@ describe('config schema validation', () => {
         const config = {
           name,
           sensorType: 'motion',
-          platform: 'PluginUpdate',
+          platform: 'HomebridgeUpdater',
         }
 
         const validate = ajv.compile(schema)
@@ -90,7 +90,7 @@ describe('config schema validation', () => {
       const config = {
         name: '',
         sensorType: 'motion',
-        platform: 'PluginUpdate',
+        platform: 'HomebridgeUpdater',
       }
 
       const validate = ajv.compile(schema)
@@ -104,7 +104,7 @@ describe('config schema validation', () => {
       const config = {
         name: longName,
         sensorType: 'motion',
-        platform: 'PluginUpdate',
+        platform: 'HomebridgeUpdater',
       }
 
       const validate = ajv.compile(schema)
@@ -118,7 +118,7 @@ describe('config schema validation', () => {
       const config = {
         name: maxLengthName,
         sensorType: 'motion',
-        platform: 'PluginUpdate',
+        platform: 'HomebridgeUpdater',
       }
 
       const validate = ajv.compile(schema)

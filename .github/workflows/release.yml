@@ -92,7 +92,7 @@ jobs:
       body: |
         **Beta Release**
         **Version**: v${{ needs.beta-publish.outputs.NPM_VERSION }}
-        [How To Test Beta Releases](https://github.com/homebridge-plugins/homebridge-plugin-update-check/wiki/Beta-Version)
+        [How To Test Beta Releases](https://github.com/homebridge-plugins/homebridge-updater/wiki/Beta-Version)
 
 
   # ─── STABLE RELEASE (branch: "latest") ───────────────────────────────────────
@@ -161,9 +161,9 @@ jobs:
     needs: [beta-publish, update-version, publish-release]
     uses: homebridge/.github/.github/workflows/discord-webhooks.yml@latest
     with:
-      title: ${{ startsWith(github.ref_name, 'beta') && 'Homebridge Plugin Update Check Beta Release' || 'Homebridge Plugin Update Check Release' }}
+      title: ${{ startsWith(github.ref_name, 'beta') && 'Homebridge Updater Beta Release' || 'Homebridge Updater Release' }}
       description: |
         Version `v${{ startsWith(github.ref_name, 'beta') && needs.beta-publish.outputs.NPM_VERSION || needs.update-version.outputs.version }}`
-      url: "https://github.com/homebridge-plugins/homebridge-plugin-update-check/releases/tag/v${{ startsWith(github.ref_name, 'beta') && needs.beta-publish.outputs.NPM_VERSION || needs.update-version.outputs.version }}"
+      url: "https://github.com/homebridge-plugins/homebridge-updater/releases/tag/v${{ startsWith(github.ref_name, 'beta') && needs.beta-publish.outputs.NPM_VERSION || needs.update-version.outputs.version }}"
     secrets:
       DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL_LATEST }}

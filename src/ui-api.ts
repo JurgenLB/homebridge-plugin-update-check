@@ -44,6 +44,12 @@ class ApiPluginEndpoints {
   static readonly getHomebridgeVersion = '/api/status/homebridge-version'
   static readonly getPluginList = '/api/plugins'
   static readonly getIgnoredPluginList = '/api/config-editor/ui/plugins/hide-updates-for'
+
+  static pluginConfig(pluginName: string): string {
+    return `/api/config-editor/plugin/${encodeURIComponent(pluginName)}`
+  }
+
+  static readonly saveConfig = '/api/config-editor'
 }
 
 export class UiApi {
@@ -147,6 +153,67 @@ export class UiApi {
       this.log.debug('homebridge-config-ui-x not configured, cannot retrieve ignored plugins list')
       return []
     }
+  }
+
+  public async getPluginConfig(pluginName: string): Promise<Array<Record<string, unknown>>> {
+    if (!this.isConfigured()) {
+      return []
+    }
+
+    const apiPath = ApiPluginEndpoints.pluginConfig(pluginName)
+    const response = await this.nativeRequestWithRetry('GET', this.baseUrl + apiPath, {
+      headers: {
+        Authorization: `Bearer ${this.getToken()}`,
+      },
+      agent: this.httpsAgent,
+      lookup: this.cacheable.lookup,
+    }) as unknown
+
+    if (Array.isArray(response)) {
+      return response as Array<Record<string, unknown>>
+    }
+
+    if (response && typeof response === 'object') {
+      const pluginConfig = (response as any).pluginConfig
+      if (Array.isArray(pluginConfig)) {
+        return pluginConfig as Array<Record<string, unknown>>
+      }
+    }
+
+    return []
+  }
+
+  public async updatePluginConfig(pluginName: string, pluginConfig: Array<Record<string, unknown>>): Promise<void> {
+    if (!this.isConfigured()) {
+      return
+    }
+
+    const apiPath = ApiPluginEndpoints.pluginConfig(pluginName)
+    await this.nativeRequestWithRetry('PUT', this.baseUrl + apiPath, {
+      headers: {
+        Authorization: `Bearer ${this.getToken()}`,
+      },
+      body: pluginConfig,
+      agent: this.httpsAgent,
+      lookup: this.cacheable.lookup,
+    })
+  }
+
+  public async savePluginConfig(pluginName: string): Promise<void> {
+    if (!this.isConfigured()) {
+      return
+    }
+
+    await this.nativeRequestWithRetry('POST', this.baseUrl + ApiPluginEndpoints.saveConfig, {
+      headers: {
+        Authorization: `Bearer ${this.getToken()}`,
+      },
+      body: {
+        plugin: pluginName,
+      },
+      agent: this.httpsAgent,
+      lookup: this.cacheable.lookup,
+    })
   }
 
   public async getDocker(): Promise<InstalledPlugin> {
@@ -519,8 +586,8 @@ export class UiApi {
     }
 
     const user = { // fake user
-      username: '@homebridge-plugins/homebridge-plugin-update-check',
-      name: '@homebridge-plugins/homebridge-plugin-update-check',
+      username: '@homebridge-plugins/homebridge-updater',
+      name: '@homebridge-plugins/homebridge-updater',
       admin: true,
       instanceId: 'xxxxxxx',
     }

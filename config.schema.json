@@ -1,11 +1,11 @@
 {
-  "pluginAlias": "PluginUpdate",
+  "pluginAlias": "HomebridgeUpdater",
   "pluginType": "platform",
   "singular": true,
   "customUi": true,
   "customUiPath": "./dist/homebridge-ui",
   "headerDisplay": "A Homebridge plugin for checking for updates to Homebridge and plugins.",
-  "footerDisplay": "Raise [Issues](https://github.com/Sunoo/homebridge-plugin-update-check/issues) or submit [Pull Requests](https://github.com/Sunoo/homebridge-plugin-update-check/pulls) on [Project Page](https://github.com/Sunoo/homebridge-plugin-update-check).",
+  "footerDisplay": "Raise [Issues](https://github.com/homebridge-plugins/homebridge-updater/issues) or submit [Pull Requests](https://github.com/homebridge-plugins/homebridge-updater/pulls) on [Project Page](https://github.com/homebridge-plugins/homebridge-updater).",
   "schema": {
     "type": "object",
     "properties": {

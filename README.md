@@ -1,6 +1,6 @@
-# homebridge-plugin-update-check
+# homebridge-updater
 
-[![npm](https://img.shields.io/npm/v/@homebridge-plugins/homebridge-plugin-update-check) ![npm](https://img.shields.io/npm/dt/@homebridge-plugins/homebridge-plugin-update-check)](https://www.npmjs.com/package/@homebridge-plugins/homebridge-plugin-update-check) [![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
+[![npm](https://img.shields.io/npm/v/@homebridge-plugins/homebridge-updater) ![npm](https://img.shields.io/npm/dt/@homebridge-plugins/homebridge-updater)](https://www.npmjs.com/package/@homebridge-plugins/homebridge-updater) [![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
 
 A [Homebridge](https://github.com/nfarina/homebridge) plugin that reports update availability as sensors and can optionally run automatic updates.
 
@@ -16,7 +16,7 @@ A [Homebridge](https://github.com/nfarina/homebridge) plugin that reports update
 ## Installation
 
 1. Install Homebridge using the [official instructions](https://github.com/homebridge/homebridge/wiki).
-2. Install this plugin using: `sudo npm install -g @homebridge-plugins/homebridge-plugin-update-check`.
+2. Install this plugin using: `sudo npm install -g @homebridge-plugins/homebridge-updater`.
 3. Update your configuration file. See sample config.json snippet below.
 
 ### Configuration
@@ -26,7 +26,7 @@ Configuration sample:
 ```json
 "platforms": [
     {
-        "platform": "PluginUpdate",
+        "platform": "HomebridgeUpdater",
         "name": "Plugin Update",
         "sensorType": "contact",
         "failureSensorType": "motion",
@@ -69,7 +69,7 @@ All sensor type options are:
 
 | Field | Description | Default |
 | --- | --- | --- |
-| `platform` | Must always be `PluginUpdate` | Required |
+| `platform` | Must always be `HomebridgeUpdater` | Required |
 | `name` | Accessory name shown in Home app | `Plugin Update` |
 | `sensorType` | Sensor type for the main update sensor | `motion` |
 | `failureSensorType` | Sensor type for auto-update failure status, or `none` to disable | `motion` |

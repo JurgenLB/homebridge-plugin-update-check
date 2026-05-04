@@ -2,7 +2,7 @@ import fs from 'node:fs'
 
 /* Copyright(C) 2021-2024, David Maher (https://github.com/sunoo). All rights reserved.
  *
- * server.ts: homebridge-plugin-update-check.
+ * server.ts: homebridge-updater.
  */
 import { HomebridgePluginUiServer } from '@homebridge/plugin-ui-utils'
 
@@ -15,7 +15,7 @@ class PluginUiServer extends HomebridgePluginUiServer {
     */
     this.onRequest('getCachedAccessories', () => {
       try {
-        const plugin = '@homebridge-plugins/homebridge-plugin-update-check'
+        const plugin = '@homebridge-plugins/homebridge-updater'
         const devicesToReturn = []
 
         // The path and file of the cached accessories

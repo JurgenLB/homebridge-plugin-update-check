@@ -1,6 +1,6 @@
 {
-  "name": "@homebridge-plugins/homebridge-plugin-update-check",
-  "displayName": "Homebridge Plugin Update Check",
+  "name": "@homebridge-plugins/homebridge-updater",
+  "displayName": "Homebridge Updater",
   "type": "module",
   "version": "3.0.7",
   "description": "A Homebridge plugin for checking for updates to Homebridge and plugins",
@@ -27,13 +27,13 @@
   "publishConfig": {
     "access": "public"
   },
-  "homepage": "https://github.com/homebridge-plugins/homebridge-plugin-update-check#readme",
+  "homepage": "https://github.com/homebridge-plugins/homebridge-updater#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/homebridge-plugins/homebridge-plugin-update-check.git"
+    "url": "https://github.com/homebridge-plugins/homebridge-updater.git"
   },
   "bugs": {
-    "url": "https://github.com/homebridge-plugins/homebridge-plugin-update-check/issues"
+    "url": "https://github.com/homebridge-plugins/homebridge-updater/issues"
   },
   "keywords": [
     "homebridge-plugin",
@@ -54,7 +54,7 @@
     "package.json"
   ],
   "engines": {
-    "homebridge": "^1.11.4 || ^2.0.0-beta.110",
+    "homebridge": "^1.11.4 || ^2.0.0-beta.111",
     "node": "^22 || ^24"
   },
   "scripts": {
@@ -86,7 +86,7 @@
     "@vitest/coverage-v8": "^4.1.5",
     "eslint": "^10.3.0",
     "eslint-plugin-format": "^2.0.1",
-    "homebridge": "^2.0.0-beta.110",
+    "homebridge": "^2.0.0-beta.111",
     "homebridge-config-ui-x": "^5.22.0",
     "nodemon": "^3.1.14",
     "shx": "^0.4.0",
