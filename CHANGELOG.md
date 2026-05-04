@@ -1,3 +1,12 @@
+## [3.0.7](https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/v3.0.6...v3.0.7) (2026-05-04)
+
+
+### Bug Fixes
+
+* **schema:** render Advanced Settings fieldset in UI ([62ceda2](https://github.com/homebridge-plugins/homebridge-plugin-update-check/commit/62ceda2fce46e6c9e63ec4c2b7bc9d6e6f090349))
+
+
+
 ## [3.0.7](https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/tag/v3.0.7) (2026-05-04)
 
 ### Bug Fixes
