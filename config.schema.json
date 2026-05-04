@@ -222,36 +222,36 @@
         "properties": {}
       }
     },
-    "layout": [
-      "name",
-      "sensorType",
-      "failureSensorType",
-      {
-        "type": "fieldset",
-        "title": "Advanced Settings",
-        "expandable": true,
-        "expanded": false,
-        "items": [
-          "enableMatter",
-          "initialCheckDelay",
-          "checkNodeUpdates",
-          "checkNpmUpdates",
-          "checkHomebridgeUpdates",
-          "checkHomebridgeUIUpdates",
-          "checkPluginUpdates",
-          "checkDockerUpdates",
-          "respectDisabledPlugins",
-          "autoUpdateNode",
-          "autoUpdateNpm",
-          "autoUpdateHomebridge",
-          "autoUpdateHomebridgeUI",
-          "autoUpdatePlugins",
-          "allowDirectNpmUpdates",
-          "autoRestartAfterUpdates",
-          "uiNotice"
-        ]
-      }
-    ],
     "required": ["name", "sensorType"]
-  }
+  },
+  "layout": [
+    "name",
+    "sensorType",
+    "failureSensorType",
+    {
+      "type": "fieldset",
+      "title": "Advanced Settings",
+      "expandable": true,
+      "expanded": false,
+      "items": [
+        "enableMatter",
+        "initialCheckDelay",
+        "checkNodeUpdates",
+        "checkNpmUpdates",
+        "checkHomebridgeUpdates",
+        "checkHomebridgeUIUpdates",
+        "checkPluginUpdates",
+        "checkDockerUpdates",
+        "respectDisabledPlugins",
+        "autoUpdateNode",
+        "autoUpdateNpm",
+        "autoUpdateHomebridge",
+        "autoUpdateHomebridgeUI",
+        "autoUpdatePlugins",
+        "allowDirectNpmUpdates",
+        "autoRestartAfterUpdates",
+        "uiNotice"
+      ]
+    }
+  ]
 }

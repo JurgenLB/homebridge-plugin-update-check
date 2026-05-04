@@ -1,3 +1,11 @@
+## [3.0.7](https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/tag/v3.0.7) (2026-05-04)
+
+### Bug Fixes
+
+* Fixed Homebridge Config UI layout rendering by moving `layout` to the top level of `config.schema.json` so the collapsible **Advanced Settings** fieldset is shown and applied correctly.
+
+**Full Changelog**: https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/v3.0.6...v3.0.7
+
 ## [3.0.6](https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/tag/v3.0.6) (2026-05-03)
 
 ### Enhancements

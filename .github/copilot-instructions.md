@@ -153,6 +153,26 @@ Also verify build outputs exist:
 - `dist/ui-api.js`
 - `dist/homebridge-ui/public/index.html`
 
+## Changelog Format Requirements
+
+When generating a changelog release entry, always use this exact structure:
+
+1. Release header with compare URL using `compare/tag/vX.Y.Z`:
+
+```md
+## [X.Y.Z](https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/tag/vX.Y.Z) (YYYY-MM-DD)
+```
+
+2. Standard sections as needed (`### Bug Fixes`, `### Enhancements`, `### Documentation`, etc.).
+
+3. End each release entry with a full changelog comparison URL to the previous version:
+
+```md
+**Full Changelog**: https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/vX.Y.(Z-1)...vX.Y.Z
+```
+
+Do not omit either URL line when creating a new release entry.
+
 ## Development Constraints
 
 - This is a Homebridge plugin and cannot be validated end-to-end without a Homebridge runtime.
