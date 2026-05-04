@@ -101,6 +101,9 @@ export class MatterSensor implements SensorProtocol {
 
   static getMatterInfo(api: API, sensorType?: string) {
     // Copied and adapted from Platform.Matter.ts
+    if (!api.matter) {
+      throw new Error('Matter API not available')
+    }
     const typeMap: Record<string, { deviceType: string, cluster: string, attribute: string, trippedValue: any, untrippedValue: any }> = {
       contact: {
         deviceType: 'ContactSensor',
@@ -190,7 +193,7 @@ export class MatterSensor implements SensorProtocol {
 
   configure(accessory: PlatformAccessory): void {
     // Register the Matter accessory if not already registered
-    if (this.registered) {
+    if (this.registered || !this.api.matter) {
       return
     }
     const deviceName = accessory.displayName || 'Plugin Update Sensor'
@@ -335,7 +338,7 @@ export class MatterSensor implements SensorProtocol {
   }
 
   setState(tripped: boolean): void {
-    if (!this.uuid) {
+    if (!this.uuid || !this.api.matter) {
       return
     }
     const info = this.matterInfo

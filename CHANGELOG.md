@@ -1,11 +1,26 @@
-## [3.0.3](https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/v3.0.2...v3.0.3) (2026-05-03)
+## [3.0.5](https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/tag/v3.0.5) (2026-05-03)
 
+### Bug Fixes
 
+* Fixed restart API calls not detecting HTTP error responses (4xx/5xx) — error responses are now properly rejected instead of treated as successful
+* Improved restart logging to show actual API response details and endpoint-specific error messages for better diagnostics
+
+**Full Changelog**: https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/v3.0.4...v3.0.5
+
+## [3.0.4](https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/tag/v3.0.4) (2026-05-03)
+
+### Bug Fixes
+
+* Fix update checks not starting after Homebridge restart ([#233](https://github.com/homebridge-plugins/homebridge-plugin-update-check/pull/233)) — Cached accessory restoration was preventing scheduled checks and cron jobs from being initialized. Now checks are always started regardless of whether the accessory was newly created or restored from cache.
+
+**Full Changelog**: https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/v3.0.3...v3.0.4
+
+## [3.0.3](https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/tag/v3.0.3) (2026-05-03)
 ### Bug Fixes
 
 * respect `failureSensorType: "none"` and auto-disable failure sensor when no auto-updates are configured ([#231](https://github.com/homebridge-plugins/homebridge-plugin-update-check/issues/231)) ([c007709](https://github.com/homebridge-plugins/homebridge-plugin-update-check/commit/c007709301063abe5df1ca3b24fae12c1f50e75e))
 
-
+**Full Changelog**: https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/v3.0.2...v3.0.3
 
 ## [3.0.2](https://github.com/homebridge-plugins/homebridge-plugin-update-check/releases/tag/v3.0.2) (2026-05-02)
 

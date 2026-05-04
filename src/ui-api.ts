@@ -307,7 +307,7 @@ export class UiApi {
             this.log.info(`Homebridge restart initiated via UI API (${endpoint})`)
             return true
           } catch (error) {
-            this.log.debug(`Restart endpoint ${endpoint} failed: ${error}`)
+            this.log.warn(`Restart endpoint ${endpoint} failed: ${error}`)
             // Continue to next endpoint
           }
         }
@@ -334,13 +334,20 @@ export class UiApi {
   }
 
   private async makeRestartCall(apiPath: string): Promise<unknown> {
-    return this.nativeRequestWithRetry('PUT', this.baseUrl + apiPath, {
-      headers: {
-        Authorization: `Bearer ${this.getToken()}`,
-      },
-      agent: this.httpsAgent,
-      lookup: this.cacheable.lookup,
-    })
+    try {
+      const response = await this.nativeRequestWithRetry('PUT', this.baseUrl + apiPath, {
+        headers: {
+          Authorization: `Bearer ${this.getToken()}`,
+        },
+        agent: this.httpsAgent,
+        lookup: this.cacheable.lookup,
+      })
+      this.log.debug(`Restart endpoint ${apiPath} returned: ${JSON.stringify(response)}`)
+      return response
+    } catch (error) {
+      this.log.debug(`Restart endpoint ${apiPath} failed: ${error}`)
+      throw error
+    }
   }
 
   private async makeBackupCall(apiPath: string): Promise<unknown> {
@@ -432,6 +439,12 @@ export class UiApi {
           res.on('data', (chunk) => { data += chunk })
           res.on('end', () => {
             try {
+              // Check for HTTP error status codes
+              if (!res.statusCode || res.statusCode < 200 || res.statusCode >= 300) {
+                const statusCode = res.statusCode || 'unknown'
+                reject(new Error(`HTTP ${statusCode}: ${data || 'no response body'}`))
+                return
+              }
               const contentType = res.headers['content-type'] || ''
               if (contentType.includes('application/json')) {
                 resolve(JSON.parse(data))

@@ -2,7 +2,7 @@
   "name": "@homebridge-plugins/homebridge-plugin-update-check",
   "displayName": "Homebridge Plugin Update Check",
   "type": "module",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "A Homebridge plugin for checking for updates to Homebridge and plugins",
   "author": "David Maher",
   "license": "BSD-2-Clause",
@@ -54,8 +54,8 @@
     "package.json"
   ],
   "engines": {
-    "homebridge": "^1.11.4 || ^2.0.0-beta.104",
-    "node": "^20 || ^22 || ^24"
+    "homebridge": "^1.11.4 || ^2.0.0-beta.110",
+    "node": "^22 || ^24"
   },
   "scripts": {
     "check": "npm install && npm outdated",
@@ -84,9 +84,9 @@
     "@types/debug": "^4.1.13",
     "@types/node": "^25.6.0",
     "@vitest/coverage-v8": "^4.1.5",
-    "eslint": "^10.2.1",
+    "eslint": "^10.3.0",
     "eslint-plugin-format": "^2.0.1",
-    "homebridge": "^2.0.0-beta.104",
+    "homebridge": "^2.0.0-beta.110",
     "homebridge-config-ui-x": "^5.22.0",
     "nodemon": "^3.1.14",
     "shx": "^0.4.0",
