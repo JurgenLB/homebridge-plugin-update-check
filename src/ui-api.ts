@@ -215,6 +215,20 @@ export class UiApi {
     }
   }
 
+  public async updateNpm(targetVersion?: string): Promise<boolean> {
+    this.log.info(`Attempting to update npm${targetVersion ? ` to ${targetVersion}` : ' to latest version'}`)
+
+    try {
+      const args = ['install', '-g', `npm${targetVersion ? `@${targetVersion}` : '@latest'}`]
+      const result = await this.runNpmCommand(args)
+      this.log.info(`npm update command completed successfully (${result})`)
+      return true
+    } catch (error) {
+      this.log.error(`Failed to update npm: ${error}`)
+      return false
+    }
+  }
+
   private async runNpmCommand(args: string[]): Promise<string> {
     return new Promise((resolve, reject) => {
       try {
@@ -334,20 +348,28 @@ export class UiApi {
   }
 
   private async makeRestartCall(apiPath: string): Promise<unknown> {
-    try {
-      const response = await this.nativeRequestWithRetry('PUT', this.baseUrl + apiPath, {
-        headers: {
-          Authorization: `Bearer ${this.getToken()}`,
-        },
-        agent: this.httpsAgent,
-        lookup: this.cacheable.lookup,
-      })
-      this.log.debug(`Restart endpoint ${apiPath} returned: ${JSON.stringify(response)}`)
-      return response
-    } catch (error) {
-      this.log.debug(`Restart endpoint ${apiPath} failed: ${error}`)
-      throw error
+    const methods: Array<'PUT' | 'POST'> = ['PUT', 'POST']
+    let lastError: unknown
+
+    for (const method of methods) {
+      try {
+        const response = await this.nativeRequestWithRetry(method, this.baseUrl + apiPath, {
+          headers: {
+            Authorization: `Bearer ${this.getToken()}`,
+          },
+          body: {},
+          agent: this.httpsAgent,
+          lookup: this.cacheable.lookup,
+        })
+        this.log.debug(`Restart endpoint ${apiPath} (${method}) returned: ${JSON.stringify(response)}`)
+        return response
+      } catch (error) {
+        lastError = error
+        this.log.debug(`Restart endpoint ${apiPath} failed with ${method}: ${error}`)
+      }
     }
+
+    throw lastError
   }
 
   private async makeBackupCall(apiPath: string): Promise<unknown> {
@@ -355,6 +377,7 @@ export class UiApi {
       headers: {
         Authorization: `Bearer ${this.getToken()}`,
       },
+      body: {},
       agent: this.httpsAgent,
       lookup: this.cacheable.lookup,
       timeout: 60000,
@@ -424,12 +447,31 @@ export class UiApi {
       try {
         const urlObj = new URL(urlString)
         const isHttps = urlObj.protocol === 'https:'
+        const hasJsonBodyMethod = method === 'POST' || method === 'PUT' || method === 'PATCH'
+        const requestBody = hasJsonBodyMethod
+          ? JSON.stringify(options.body ?? {})
+          : undefined
+        const headers = {
+          ...(options.headers || {}),
+        } as Record<string, string>
+
+        if (requestBody) {
+          // UI API endpoints expect JSON content negotiation for action routes.
+          if (!headers['Content-Type']) {
+            headers['Content-Type'] = 'application/json'
+          }
+          if (!headers.Accept) {
+            headers.Accept = 'application/json'
+          }
+          headers['Content-Length'] = String(Buffer.byteLength(requestBody))
+        }
+
         const reqOptions: any = {
           method,
           hostname: urlObj.hostname,
           port: urlObj.port || (isHttps ? 443 : 80),
           path: urlObj.pathname + urlObj.search,
-          headers: options.headers || {},
+          headers,
           agent: options.agent,
           timeout: options.timeout || 30000,
           lookup: options.lookup,
@@ -461,8 +503,8 @@ export class UiApi {
           req.destroy()
           reject(new Error('ETIMEOUT'))
         })
-        if (method === 'POST' || method === 'PUT') {
-          req.write(options.body ? JSON.stringify(options.body) : '{}')
+        if (requestBody) {
+          req.write(requestBody)
         }
         req.end()
       } catch (err) {

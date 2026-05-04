@@ -39,7 +39,9 @@ describe('pluginUpdatePlatformConfig', () => {
       checkHomebridgeUIUpdates: true,
       checkPluginUpdates: true,
       checkDockerUpdates: true,
+      checkNpmUpdates: true,
       initialCheckDelay: 15,
+      autoUpdateNpm: false,
       autoUpdateHomebridge: true,
       autoUpdateHomebridgeUI: false,
       autoUpdatePlugins: true,
@@ -51,7 +53,9 @@ describe('pluginUpdatePlatformConfig', () => {
     expect(config.checkHomebridgeUIUpdates).toBe(true)
     expect(config.checkPluginUpdates).toBe(true)
     expect(config.checkDockerUpdates).toBe(true)
+    expect(config.checkNpmUpdates).toBe(true)
     expect(config.initialCheckDelay).toBe(15)
+    expect(config.autoUpdateNpm).toBe(false)
     expect(config.autoUpdateHomebridge).toBe(true)
     expect(config.autoUpdateHomebridgeUI).toBe(false)
     expect(config.autoUpdatePlugins).toBe(true)
@@ -65,11 +69,24 @@ describe('pluginUpdatePlatformConfig', () => {
       autoUpdateHomebridge: true,
       autoUpdateHomebridgeUI: false,
       autoUpdatePlugins: true,
+      autoUpdateNpm: false,
     }
     expect(config.name).toBe('Example Platform')
     expect(config.autoUpdateHomebridge).toBe(true)
     expect(config.autoUpdateHomebridgeUI).toBe(false)
     expect(config.autoUpdatePlugins).toBe(true)
+    expect(config.autoUpdateNpm).toBe(false)
+  })
+
+  it('should allow npm update properties to be set independently', () => {
+    const config: PluginUpdatePlatformConfig = {
+      name: 'Example Platform',
+      platform: 'ExamplePlatform',
+      checkNpmUpdates: true,
+      autoUpdateNpm: true,
+    }
+    expect(config.checkNpmUpdates).toBe(true)
+    expect(config.autoUpdateNpm).toBe(true)
   })
 
   it('should allow allowDirectNpmUpdates property to be set', () => {
@@ -88,15 +105,6 @@ describe('pluginUpdatePlatformConfig', () => {
       autoRestartAfterUpdates: true,
     }
     expect(config.autoRestartAfterUpdates).toBe(true)
-  })
-
-  it('should allow preferMatter property to be set', () => {
-    const config: PluginUpdatePlatformConfig = {
-      name: 'Example Platform',
-      platform: 'ExamplePlatform',
-      preferMatter: true,
-    }
-    expect(config.preferMatter).toBe(true)
   })
 
   it('should allow enableMatter property to be set', () => {

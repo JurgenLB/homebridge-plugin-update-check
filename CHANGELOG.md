@@ -1,3 +1,32 @@
+## [3.0.6](https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/tag/v3.0.6) (2026-05-03)
+
+### Enhancements
+
+* Added npm update support:
+  * New `checkNpmUpdates` option to detect newer npm versions.
+  * New `autoUpdateNpm` option to automatically update npm.
+* npm support is now environment-safe:
+  * If npm is unavailable, npm checks are skipped without crashing.
+  * If `autoUpdateNpm` is enabled but npm is unavailable, a clear warning is logged and failure state is tracked.
+* Simplified Matter selection config:
+  * Removed `preferMatter` from user config and schema.
+  * Protocol selection now auto-prefers Matter when available and `enableMatter` is true.
+* Reordered Config UI fields in `config.schema.json` into a more logical top-to-bottom flow.
+
+### Bug Fixes
+
+* Improved Homebridge UI action request compatibility for restart/backup flows:
+  * Added JSON request headers/content-length for action endpoints.
+  * Added restart method fallback (`PUT` then `POST`) to support API variations across UI versions.
+  * Reduces `HTTP 415 Unsupported Media Type` restart failures.
+
+### Documentation
+
+* Updated README for new npm options and behavior when npm is not installed.
+* Removed `preferMatter` from README examples and option table.
+
+**Full Changelog**: https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/v3.0.5...v3.0.6
+
 ## [3.0.5](https://github.com/homebridge-plugins/homebridge-plugin-update-check/compare/tag/v3.0.5) (2026-05-03)
 
 ### Bug Fixes

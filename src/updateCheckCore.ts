@@ -1,4 +1,5 @@
 import { Cron } from 'croner';
+import { spawnSync } from 'node:child_process';
 import https from 'node:https';
 import type { Logging, PlatformConfig } from 'homebridge';
 import type { PluginUpdatePlatformConfig } from './configTypes.js';
@@ -7,7 +8,9 @@ import { LogLevel } from 'homebridge';
 
 export class UpdateCheckCore {
   public readonly checkNode: boolean;
+  public readonly checkNpm: boolean;
   public nodeUpdates: string[] = [];
+  public npmUpdates: string[] = [];
   public readonly log: Logging;
   public readonly config: PluginUpdatePlatformConfig;
   public readonly uiApi: UiApi;
@@ -37,6 +40,7 @@ export class UpdateCheckCore {
     this.checkDocker = this.config.checkDockerUpdates ?? false;
     this.initialCheckDelay = this.config.initialCheckDelay ?? 10;
     this.checkNode = this.config.checkNodeUpdates ?? false;
+    this.checkNpm = this.config.checkNpmUpdates ?? false;
   }
 
   async checkUi(): Promise<number> {
@@ -117,6 +121,34 @@ export class UpdateCheckCore {
         this.log.warn(`Failed to check Node.js updates: ${err}`);
       }
     }
+
+    if (this.checkNpm) {
+      try {
+        const currentNpmVersion = this.getLocalNpmVersion();
+        if (!currentNpmVersion) {
+          this.log.debug('npm command is not available on this system; skipping npm update check.');
+        } else {
+          const latestNpmVersion = await this.getLatestNpmVersion();
+          if (this.compareSemver(currentNpmVersion, latestNpmVersion) < 0) {
+            const isNew = this.npmUpdates.length === 0 || !this.npmUpdates.includes(latestNpmVersion);
+            const logLevel = isFirstDailyRun || isNew ? LogLevel.INFO : LogLevel.DEBUG;
+            this.log.log(logLevel, `npm update available: ${currentNpmVersion} -> ${latestNpmVersion}`);
+            this.npmUpdates = [latestNpmVersion];
+            updatesAvailable.push({
+              name: 'npm',
+              installedVersion: currentNpmVersion,
+              latestVersion: latestNpmVersion,
+              updateAvailable: true,
+            });
+          } else {
+            this.log.debug(`npm is up to date (current: ${currentNpmVersion}, latest: ${latestNpmVersion})`);
+          }
+        }
+      } catch (err) {
+        this.log.warn(`Failed to check npm updates: ${err}`);
+      }
+    }
+
     // (removed duplicate declarations)
     if (this.respectDisabledPlugins) {
       try {
@@ -238,12 +270,16 @@ export class UpdateCheckCore {
     const shouldAutoUpdateHomebridge = this.config.autoUpdateHomebridge === true;
     const shouldAutoUpdateUi = this.config.autoUpdateHomebridgeUI === true;
     const shouldAutoUpdatePlugins = this.config.autoUpdatePlugins === true;
+    const shouldAutoUpdateNpm = this.config.autoUpdateNpm === true;
 
-    if (!shouldAutoUpdateHomebridge && !shouldAutoUpdateUi && !shouldAutoUpdatePlugins) {
+    if (!shouldAutoUpdateHomebridge && !shouldAutoUpdateUi && !shouldAutoUpdatePlugins && !shouldAutoUpdateNpm) {
       return;
     }
 
     const autoUpdateTargets = updatesAvailable.filter((plugin) => {
+      if (plugin.name === 'npm') {
+        return shouldAutoUpdateNpm;
+      }
       if (plugin.name === 'homebridge') {
         return shouldAutoUpdateHomebridge;
       }
@@ -257,15 +293,21 @@ export class UpdateCheckCore {
       return;
     }
 
+    if (shouldAutoUpdateNpm && !this.getLocalNpmVersion()) {
+      this.lastAutoUpdateFailed = true;
+      this.log.warn('autoUpdateNpm is enabled, but npm is not available on this system.');
+    }
+
     const hasUiApi = this.uiApi.isConfigured();
     const allowDirectNpmUpdates = this.config.allowDirectNpmUpdates === true;
-    if (!hasUiApi && !allowDirectNpmUpdates) {
+    const hasNonNpmTargets = autoUpdateTargets.some(target => target.name !== 'npm');
+    if (hasNonNpmTargets && !hasUiApi && !allowDirectNpmUpdates) {
       this.lastAutoUpdateFailed = true;
       this.log.warn('Auto-update is enabled, but homebridge-config-ui-x is not configured and allowDirectNpmUpdates is disabled.');
       return;
     }
 
-    if (hasUiApi) {
+    if (hasUiApi && hasNonNpmTargets) {
       await this.uiApi.createBackup();
     }
 
@@ -289,12 +331,67 @@ export class UpdateCheckCore {
   }
 
   private async applyAutoUpdate(target: InstalledPlugin): Promise<boolean> {
+    if (target.name === 'npm') {
+      return await this.uiApi.updateNpm(target.latestVersion);
+    }
+
     if (target.name === 'homebridge') {
       return await this.uiApi.updateHomebridge(target.latestVersion);
     }
 
     this.log.info(`Attempting to auto-update ${target.name} to ${target.latestVersion}`);
     return await this.uiApi.updatePlugin(target.name, target.latestVersion);
+  }
+
+  private getLocalNpmVersion(): string | undefined {
+    const result = spawnSync('npm', ['--version'], { encoding: 'utf8' });
+    if (result.error || result.status !== 0) {
+      return undefined;
+    }
+    const version = (result.stdout || '').trim();
+    return version.length > 0 ? version : undefined;
+  }
+
+  private async getLatestNpmVersion(): Promise<string> {
+    return await new Promise<string>((resolve, reject) => {
+      const req = https.get('https://registry.npmjs.org/npm/latest', (res) => {
+        let data = '';
+        res.on('data', (chunk) => {
+          data += chunk;
+        });
+        res.on('end', () => {
+          try {
+            const body = JSON.parse(data) as { version?: string };
+            if (!body.version) {
+              reject(new Error('npm registry response missing version field'));
+              return;
+            }
+            resolve(body.version);
+          } catch (error) {
+            reject(error);
+          }
+        });
+      });
+      req.on('error', reject);
+    });
+  }
+
+  private compareSemver(a: string, b: string): number {
+    const normalize = (value: string) => value.split('.').map(part => Number.parseInt(part.replace(/\D.*$/, ''), 10) || 0);
+    const pa = normalize(a);
+    const pb = normalize(b);
+    const max = Math.max(pa.length, pb.length);
+    for (let i = 0; i < max; i++) {
+      const va = pa[i] ?? 0;
+      const vb = pb[i] ?? 0;
+      if (va > vb) {
+        return 1;
+      }
+      if (va < vb) {
+        return -1;
+      }
+    }
+    return 0;
   }
 
   private firstDailyRunResetCronJob?: Cron;

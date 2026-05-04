@@ -9,18 +9,6 @@
   "schema": {
     "type": "object",
     "properties": {
-                  "autoUpdateNode": {
-                    "title": "Auto-update Node.js",
-                    "type": "boolean",
-                    "description": "Automatically update Node.js using hb-service update-node when a new LTS version is available and supported.",
-                    "default": false
-                  },
-            "checkNodeUpdates": {
-              "title": "Check for Node.js updates",
-              "type": "boolean",
-              "description": "Check if a newer LTS version of Node.js is available.",
-              "default": false
-            },
       "name": {
         "title": "Name",
         "type": "string",
@@ -78,67 +66,6 @@
           }
         ]
       },
-      "checkHomebridgeUpdates": {
-        "title": "Check for Homebridge updates",
-        "type": "boolean",
-        "description": "Check if an update is available for the Homebridge server",
-        "default": true
-      },
-      "checkHomebridgeUIUpdates": {
-        "title": "Check for Homebridge Config UI updates",
-        "type": "boolean",
-        "description": "Check if an update is available for the Homebridge UI",
-        "default": true
-      },
-      "checkPluginUpdates": {
-        "title": "Check for plugin updates",
-        "type": "boolean",
-        "description": "Check if updates are available for any installed plugins",
-        "default": true
-      },
-      "checkDockerUpdates": {
-        "title": "Check for Docker image updates",
-        "type": "boolean",
-        "description": "Check if Docker image updates are available (ignored if not running in Docker container)"
-      },
-      "initialCheckDelay": {
-        "title": "Initial Check Delay (seconds)",
-        "type": "integer",
-        "description": "Delay in seconds before performing the initial update check after startup",
-        "default": 10,
-        "minimum": 0,
-        "maximum": 300
-      },
-      "autoUpdateHomebridge": {
-        "title": "Auto-update Homebridge",
-        "type": "boolean",
-        "description": "Automatically install Homebridge updates when available (requires homebridge-config-ui-x and sufficient npm privileges)",
-        "default": false
-      },
-      "autoUpdateHomebridgeUI": {
-        "title": "Auto-update Homebridge Config UI",
-        "type": "boolean",
-        "description": "Automatically install Homebridge Config UI updates when available (requires homebridge-config-ui-x and sufficient npm privileges)",
-        "default": false
-      },
-      "autoUpdatePlugins": {
-        "title": "Auto-update plugins",
-        "type": "boolean",
-        "description": "Automatically install plugin updates when available (requires homebridge-config-ui-x and sufficient npm privileges)",
-        "default": false
-      },
-      "allowDirectNpmUpdates": {
-        "title": "Allow direct npm updates",
-        "type": "boolean",
-        "description": "Allow automatic updates using direct npm commands even when homebridge-config-ui-x is not available (requires sufficient npm privileges)",
-        "default": false
-      },
-      "autoRestartAfterUpdates": {
-        "title": "Auto-restart after updates",
-        "type": "boolean",
-        "description": "Automatically restart Homebridge after successful automatic updates to apply changes",
-        "default": false
-      },
       "failureSensorType": {
         "title": "Failure Sensor Type",
         "type": "string",
@@ -191,31 +118,140 @@
           }
         ]
       },
-      "respectDisabledPlugins": {
-        "title": "Respect disabled plugin update notifications",
-        "type": "boolean",
-        "description": "When enabled, respects the 'Hide update notifications for this plugin' setting from homebridge-config-ui-x. Plugins marked to hide updates will not trigger notifications.",
-        "default": true
-      },
       "enableMatter": {
         "title": "Enable Matter support",
         "type": "boolean",
         "description": "Enable Homebridge Matter support when running on Homebridge v2.0 or later with Matter enabled.",
         "default": true
       },
-      "preferMatter": {
-        "title": "Prefer Matter over HAP",
+      "initialCheckDelay": {
+        "title": "Initial Check Delay (seconds)",
+        "type": "integer",
+        "description": "Delay in seconds before performing the initial update check after startup",
+        "default": 10,
+        "minimum": 0,
+        "maximum": 300
+      },
+      "checkNodeUpdates": {
+        "title": "Check for Node.js updates",
         "type": "boolean",
-        "description": "When both Matter and HAP are available, prefer the Matter platform implementation.",
+        "description": "Check if a newer LTS version of Node.js is available.",
+        "default": false
+      },
+      "checkNpmUpdates": {
+        "title": "Check for npm updates",
+        "type": "boolean",
+        "description": "Check if a newer npm version is available. Ignored when npm is not installed.",
+        "default": false
+      },
+      "checkHomebridgeUpdates": {
+        "title": "Check for Homebridge updates",
+        "type": "boolean",
+        "description": "Check if an update is available for the Homebridge server",
         "default": true
       },
-      "": {
+      "checkHomebridgeUIUpdates": {
+        "title": "Check for Homebridge Config UI updates",
+        "type": "boolean",
+        "description": "Check if an update is available for the Homebridge UI",
+        "default": true
+      },
+      "checkPluginUpdates": {
+        "title": "Check for plugin updates",
+        "type": "boolean",
+        "description": "Check if updates are available for any installed plugins",
+        "default": true
+      },
+      "checkDockerUpdates": {
+        "title": "Check for Docker image updates",
+        "type": "boolean",
+        "description": "Check if Docker image updates are available (ignored if not running in Docker container)"
+      },
+      "respectDisabledPlugins": {
+        "title": "Respect disabled plugin update notifications",
+        "type": "boolean",
+        "description": "When enabled, respects the 'Hide update notifications for this plugin' setting from homebridge-config-ui-x. Plugins marked to hide updates will not trigger notifications.",
+        "default": true
+      },
+      "autoUpdateNode": {
+        "title": "Auto-update Node.js",
+        "type": "boolean",
+        "description": "Automatically update Node.js using hb-service update-node when a new LTS version is available and supported.",
+        "default": false
+      },
+      "autoUpdateNpm": {
+        "title": "Auto-update npm",
+        "type": "boolean",
+        "description": "Automatically update npm when a newer version is available. Ignored when npm is not installed.",
+        "default": false
+      },
+      "autoUpdateHomebridge": {
+        "title": "Auto-update Homebridge",
+        "type": "boolean",
+        "description": "Automatically install Homebridge updates when available (requires homebridge-config-ui-x and sufficient npm privileges)",
+        "default": false
+      },
+      "autoUpdateHomebridgeUI": {
+        "title": "Auto-update Homebridge Config UI",
+        "type": "boolean",
+        "description": "Automatically install Homebridge Config UI updates when available (requires homebridge-config-ui-x and sufficient npm privileges)",
+        "default": false
+      },
+      "autoUpdatePlugins": {
+        "title": "Auto-update plugins",
+        "type": "boolean",
+        "description": "Automatically install plugin updates when available (requires homebridge-config-ui-x and sufficient npm privileges)",
+        "default": false
+      },
+      "allowDirectNpmUpdates": {
+        "title": "Allow direct npm updates",
+        "type": "boolean",
+        "description": "Allow automatic updates using direct npm commands even when homebridge-config-ui-x is not available (requires sufficient npm privileges)",
+        "default": false
+      },
+      "autoRestartAfterUpdates": {
+        "title": "Auto-restart after updates",
+        "type": "boolean",
+        "description": "Automatically restart Homebridge after successful automatic updates to apply changes",
+        "default": false
+      },
+      "uiNotice": {
         "title": "",
-        "description": "Note: This feature may require updating Homebridge UI to a newer varsion. It is recommended to update to the latest version.",
+        "description": "Note: This feature may require updating Homebridge UI to a newer version. It is recommended to update to the latest version.",
         "type": "object",
         "properties": {}
       }
     },
+    "layout": [
+      "name",
+      "sensorType",
+      "failureSensorType",
+      {
+        "type": "fieldset",
+        "title": "Advanced Settings",
+        "expandable": true,
+        "expanded": false,
+        "items": [
+          "enableMatter",
+          "initialCheckDelay",
+          "checkNodeUpdates",
+          "checkNpmUpdates",
+          "checkHomebridgeUpdates",
+          "checkHomebridgeUIUpdates",
+          "checkPluginUpdates",
+          "checkDockerUpdates",
+          "respectDisabledPlugins",
+          "autoUpdateNode",
+          "autoUpdateNpm",
+          "autoUpdateHomebridge",
+          "autoUpdateHomebridgeUI",
+          "autoUpdatePlugins",
+          "allowDirectNpmUpdates",
+          "autoRestartAfterUpdates",
+          "uiNotice"
+        ]
+      }
+    ],
     "required": ["name", "sensorType"]
   }
 }

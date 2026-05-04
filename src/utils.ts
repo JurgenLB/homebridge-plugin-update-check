@@ -8,7 +8,7 @@ import type { PluginUpdatePlatformConfig } from './configTypes.js'
  * The failure sensor is disabled when:
  * - `failureSensorType` is explicitly set to `"none"`, OR
  * - none of the auto-update options (autoUpdateNode, autoUpdateHomebridge,
- *   autoUpdateHomebridgeUI, autoUpdatePlugins) are enabled, because without
+ *   autoUpdateHomebridgeUI, autoUpdatePlugins, autoUpdateNpm) are enabled, because without
  *   auto-updates there can never be an auto-update failure to report.
  */
 export function isFailureSensorEnabled(config: PlatformConfig): boolean {
@@ -16,7 +16,7 @@ export function isFailureSensorEnabled(config: PlatformConfig): boolean {
   if (cfg.failureSensorType === 'none') {
     return false
   }
-  return !!(cfg.autoUpdateNode || cfg.autoUpdateHomebridge || cfg.autoUpdateHomebridgeUI || cfg.autoUpdatePlugins)
+  return !!(cfg.autoUpdateNode || cfg.autoUpdateHomebridge || cfg.autoUpdateHomebridgeUI || cfg.autoUpdatePlugins || cfg.autoUpdateNpm)
 }
 
 /**
@@ -41,19 +41,18 @@ export function createPlatformProxy(HAPPlatform: any, MatterPlatform: any): any 
      * @returns The instantiated platform implementation
      */
     constructor(log: any, config: PlatformConfig, api: any) {
-      const preferMatter = (config as any).preferMatter ?? true
       const enableMatter = (config as any).enableMatter ?? true
       const hasMatterApi = !!api?.matter
       const matterAvailable = typeof api?.isMatterAvailable === 'function' ? !!api.isMatterAvailable() : hasMatterApi
       const matterEnabled = typeof api?.isMatterEnabled === 'function' ? !!api.isMatterEnabled() : hasMatterApi
 
-      if (enableMatter && preferMatter && MatterPlatform && hasMatterApi && matterAvailable && matterEnabled) {
+      if (enableMatter && MatterPlatform && hasMatterApi && matterAvailable && matterEnabled) {
         log?.debug?.('[Protocol] Using Matter platform implementation')
         this.impl = new MatterPlatform(log, config, api)
         return
       }
 
-      if (enableMatter && preferMatter) {
+      if (enableMatter) {
         const reasons: string[] = []
         if (!MatterPlatform) {
           reasons.push('Matter platform class unavailable')
@@ -68,7 +67,7 @@ export function createPlatformProxy(HAPPlatform: any, MatterPlatform: any): any 
           reasons.push('Matter not enabled')
         }
         const reasonText = reasons.length ? reasons.join(', ') : 'unknown reason'
-        log?.debug?.(`[Protocol] Falling back to HAP despite Matter preference: ${reasonText}`)
+        log?.debug?.(`[Protocol] Falling back to HAP: ${reasonText}`)
       } else {
         log?.debug?.('[Protocol] Using HAP platform implementation')
       }

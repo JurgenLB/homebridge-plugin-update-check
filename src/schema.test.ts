@@ -20,7 +20,9 @@ describe('config schema validation', () => {
     const fullSchema = JSON.parse(schemaContent)
     schema = fullSchema.schema
 
-    ajv = new Ajv()
+    ajv = new Ajv({ strict: true })
+    // Homebridge config schemas include UI-only layout metadata.
+    ajv.addKeyword('layout')
   })
 
   describe('name field validation', () => {
@@ -61,7 +63,7 @@ describe('config schema validation', () => {
         'Plugin*Update', // * symbol
         'Plugin+Update', // + symbol
         'Plugin=Update', // = symbol
-        'Plugin/Update', // / slash
+        'Plugin/Update', // slash character
         'Plugin\\Update', // \ backslash
         'Plugin|Update', // | pipe
         'Plugin<Update>', // < > brackets

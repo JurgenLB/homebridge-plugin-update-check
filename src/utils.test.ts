@@ -9,7 +9,7 @@ describe('isFailureSensorEnabled', () => {
 
   it('should return false when no auto-update option is enabled', () => {
     expect(isFailureSensorEnabled({} as any)).toBe(false)
-    expect(isFailureSensorEnabled({ autoUpdateHomebridge: false, autoUpdateHomebridgeUI: false, autoUpdatePlugins: false, autoUpdateNode: false } as any)).toBe(false)
+    expect(isFailureSensorEnabled({ autoUpdateHomebridge: false, autoUpdateHomebridgeUI: false, autoUpdatePlugins: false, autoUpdateNode: false, autoUpdateNpm: false } as any)).toBe(false)
   })
 
   it('should return true when at least one auto-update option is enabled', () => {
@@ -17,6 +17,7 @@ describe('isFailureSensorEnabled', () => {
     expect(isFailureSensorEnabled({ autoUpdateHomebridgeUI: true } as any)).toBe(true)
     expect(isFailureSensorEnabled({ autoUpdatePlugins: true } as any)).toBe(true)
     expect(isFailureSensorEnabled({ autoUpdateNode: true } as any)).toBe(true)
+    expect(isFailureSensorEnabled({ autoUpdateNpm: true } as any)).toBe(true)
   })
 
   it('should return false when failureSensorType is "none" even if auto-updates are enabled', () => {
@@ -26,6 +27,7 @@ describe('isFailureSensorEnabled', () => {
       autoUpdateHomebridgeUI: true,
       autoUpdatePlugins: true,
       autoUpdateNode: true,
+      autoUpdateNpm: true,
     }
     expect(isFailureSensorEnabled(config as any)).toBe(false)
   })
@@ -57,7 +59,7 @@ describe('createPlatformProxy', () => {
 
     // api without Matter support
     const api = {}
-    new ProxyCtor('log', { preferMatter: true, enableMatter: true }, api)
+    new ProxyCtor('log', { enableMatter: true }, api)
 
     expect(hapConstructed).toHaveLength(1)
     expect(matterConstructed).toHaveLength(0)
@@ -87,7 +89,7 @@ describe('createPlatformProxy', () => {
       isMatterAvailable: () => true,
       isMatterEnabled: () => true,
     }
-    new ProxyCtor('log', { preferMatter: true, enableMatter: true }, api)
+    new ProxyCtor('log', { enableMatter: true }, api)
 
     expect(matterConstructed).toHaveLength(1)
     expect(hapConstructed).toHaveLength(0)
@@ -117,37 +119,7 @@ describe('createPlatformProxy', () => {
       isMatterAvailable: () => true,
       isMatterEnabled: () => true,
     }
-    new ProxyCtor('log', { preferMatter: true, enableMatter: false }, api)
-
-    expect(hapConstructed).toHaveLength(1)
-    expect(matterConstructed).toHaveLength(0)
-  })
-
-  it('should fall back to HAP when preferMatter is false', () => {
-    const hapConstructed: any[] = []
-    const matterConstructed: any[] = []
-
-    class MockHAPPlatform {
-      constructor(log: any, config: any, api: any) {
-        hapConstructed.push({ log, config, api })
-      }
-    }
-
-    class MockMatterPlatform {
-      constructor(log: any, config: any, api: any) {
-        matterConstructed.push({ log, config, api })
-      }
-    }
-
-    const ProxyCtor = createPlatformProxy(MockHAPPlatform, MockMatterPlatform)
-
-    // Matter available but not preferred
-    const api = {
-      matter: {},
-      isMatterAvailable: () => true,
-      isMatterEnabled: () => true,
-    }
-    new ProxyCtor('log', { preferMatter: false, enableMatter: true }, api)
+    new ProxyCtor('log', { enableMatter: false }, api)
 
     expect(hapConstructed).toHaveLength(1)
     expect(matterConstructed).toHaveLength(0)
@@ -175,7 +147,7 @@ describe('createPlatformProxy', () => {
     const api = {
       matter: {},
     }
-    new ProxyCtor('log', { preferMatter: true, enableMatter: true }, api)
+    new ProxyCtor('log', { enableMatter: true }, api)
 
     expect(matterConstructed).toHaveLength(1)
     expect(hapConstructed).toHaveLength(0)

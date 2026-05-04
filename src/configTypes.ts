@@ -1,8 +1,10 @@
 import type { PlatformIdentifier, PlatformName } from 'homebridge'
 
 export interface PluginUpdatePlatformConfig {
-      autoUpdateNode?: boolean
-    checkNodeUpdates?: boolean
+  autoUpdateNode?: boolean
+  checkNodeUpdates?: boolean
+  autoUpdateNpm?: boolean
+  checkNpmUpdates?: boolean
   name: string
   platform: PlatformName | PlatformIdentifier
   sensorType?: string
@@ -18,6 +20,5 @@ export interface PluginUpdatePlatformConfig {
   autoRestartAfterUpdates?: boolean
   failureSensorType?: string
   respectDisabledPlugins?: boolean
-  preferMatter?: boolean
   enableMatter?: boolean
 }
