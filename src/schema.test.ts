@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename)
 
 describe('config schema validation', () => {
   let schema: any
-  let ajv: Ajv
+  let ajv: InstanceType<typeof Ajv>
 
   beforeAll(() => {
     // Load the config schema
@@ -20,9 +20,9 @@ describe('config schema validation', () => {
     const fullSchema = JSON.parse(schemaContent)
     schema = fullSchema.schema
 
-    ajv = new Ajv({ strict: true })
+    ajv = new Ajv()
     // Homebridge config schemas include UI-only layout metadata.
-    ajv.addKeyword('layout')
+    ajv.addKeyword('layout', {})
   })
 
   describe('name field validation', () => {
