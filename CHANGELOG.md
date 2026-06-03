@@ -1,3 +1,11 @@
+## [3.1.7](https://github.com/homebridge-plugins/homebridge-updater/compare/tag/v3.1.7) (2026-06-03)
+
+### Changes
+
+* chore: update `.gitignore` to ignore webstorm files
+* chore: dependency updates
+* fix(ui-api): send correct instanceId so JWTs pass UI auth on v5.24.0+
+
 ## [3.1.2](https://github.com/homebridge-plugins/homebridge-updater/compare/tag/v3.1.2) (2026-05-05)
 
 ### Bug Fixes
