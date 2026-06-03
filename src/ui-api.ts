@@ -9,6 +9,7 @@ import type {
 } from 'homebridge'
 
 import { spawn } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import https from 'node:https'
 import path from 'node:path'
@@ -68,7 +69,7 @@ export class UiApi {
 
     const MAX_TTL_SEC = 86400; // limit TTL to 24 hours
     this.cacheable = new CacheableLookup({ maxTtl: MAX_TTL_SEC });
-    
+
     const configPath = path.resolve(hbStoragePath, 'config.json')
     const hbConfig = JSON.parse(readFileSync(configPath, 'utf8')) as HomebridgeConfig
     const config = hbConfig.platforms.find((config: { platform: string }) =>
@@ -589,7 +590,7 @@ export class UiApi {
       username: '@homebridge-plugins/homebridge-updater',
       name: '@homebridge-plugins/homebridge-updater',
       admin: true,
-      instanceId: 'xxxxxxx',
+      instanceId: createHash('sha256').update(this.secrets!.secretKey).digest('hex'),
     }
 
     this.token = jwt.sign(user, this.secrets!.secretKey, { expiresIn: '1m' })
