@@ -93,6 +93,7 @@ All sensor type options are:
 ## How It Works
 
 - The plugin checks selected update sources on a schedule.
+- The plugin Periodicly checks for updates. (5 minutes after every hour)
 - If any enabled source has updates, the main sensor is set to active.
 - If automatic updates are enabled and an update/restart fails, the failure sensor is set to active.
 - If no auto-update options are enabled, the failure sensor is automatically not exposed.
